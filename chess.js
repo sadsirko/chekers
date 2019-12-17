@@ -16,8 +16,47 @@ let cell = { };
  let click = false;
  let Xmouse ;
  let Ymouse ;
-
+ let zone = [];
+ let choosen_cell;
+ let spec_arr = [];
 //for desk cells
+
+function mouseMoveHandlerX(e) {
+  let relativeX = e.clientX - canvas.offsetLeft;
+
+Xmouse = relativeX;
+}
+function mouseMoveHandlerY(e) {
+  let relativeY = e.clientY - canvas.offsetLeft;
+
+  Ymouse = relativeY;
+1
+}
+function mousedown(e) {
+  click = true;
+}
+function mouseup(e) {
+  click = false;
+}
+function work_with_spec_arr(){
+  let n = 1;
+    for(let i = 0 ; i < 7; i++){
+    spec_arr[i] = [];
+   for (let j = 0; j < 8; j++) {
+    spec_arr[i][j] = 0 ; 
+    }
+  }
+
+  for(let j = 0 ; j < 4 ; j++)
+  {
+    for (let i = 0; i < 4; i++) {
+      spec_arr[0 + i +j ][4 + i - j] = n ;
+     spec_arr[0 + i +j ][3 + i - j] = (n + 4) ;
+      n++;
+       } n += 4;
+} 
+
+}
 function draw_desk_cells(x,y){
 ctx.beginPath();
 //ctx.rect( cell.x, cell.y, cell.width, cell.height)
@@ -65,7 +104,8 @@ for(let num  = 0; num < 3; num ++ ){
 function draw_w_chekers_first(){
 for(let num  = 0; num < 3; num ++ ){
 	white[num] = [];
-        for(let n  = 0; n < 4; n ++ ){        	 
+        for(let n  = 0; n < 4; n ++ ){    
+
              if( num == 1 ) white [num][n] = { x : 90 + n * 120, y : 330 + num * 60  };
              else white [num][n] = { x : 30 + n * 120, y : 330 + num * 60  }    
         drawcheker_w(white[num][n].x,white[num][n].y);
@@ -80,35 +120,45 @@ for(let num  = 0; num < 3; num ++ ){
         }	
 }
 }
-function mouseMoveHandlerX(e) {
-  let relativeX = e.clientX - canvas.offsetLeft;
-  //console.log("X + "relativeX)
-//console.log(" X " + relativeX);
-Xmouse = relativeX;
+function find_zones(){
+  let num = 1;
+
+for(let i  = 0; i < 8; i ++ ){
+        for(let j  = 0; j < 4; j ++ ){           
+        zone[num] = { };
+        if(i % 2 == 0) zone[num] = { x : 60 + 120 * j, y : i * 60  , choose : false};
+        else zone[num] = {x :  120 * j, y : i * 60 , choose : false };
+        num++;
+        } 
 }
-function mouseMoveHandlerY(e) {
-  let relativeY = e.clientY - canvas.offsetLeft;
- // console.log(" Y " + relativeY);
-  Ymouse = relativeY;
-1
 }
-function mousedown(e) {
-  click = true;
+function find_choosed_cell(){
+if(click && Xmouse <= 480 && Ymouse <= 480 ){
+  for(let i = 1 ; i < 33 ; i++){
+    let a = Xmouse > zone[i].x;
+    let b = Xmouse < zone[i].x + 60; 
+    let c = Ymouse > zone[i].y;
+    let d = Ymouse < zone[i].y + 60;  
+   if ( a && b & c && d) {zone[ i ].choose = true; choosen_cell = i;}
+  }
 }
-function mouseup(e) {
-  click = false;
 }
+
+work_with_spec_arr();
 draw_b_chekers_first();
 draw_w_chekers_first();
+find_zones();
+console.log(zone[32]);
+
 function draw(){
 
  ctx.clearRect(0, 0, canvas.width, canvas.height);
     draw_chekers();
 	draw_desk();
-	 
-if(click ) console.log(" lakhfldkajhlksfdjhgladjaglkdjfh " + Xmouse + " " + Ymouse );
-
+find_choosed_cell()	 
+console.log(choosen_cell);
+work_with_spec_arr();
 }
-
+//console.log(spec_arr[6][3] );
 setInterval(draw, 10);
-
+console.log(spec_arr);
