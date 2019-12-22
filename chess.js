@@ -17,7 +17,7 @@ let cell = { };
  let Xmouse ;
  let Ymouse ;
  let zone = [];
- let choosen_cell;
+ let choosen_cell_now = 0,choosen_cell_prev = 0;
  let spec_arr = [];
 //for desk cells
 
@@ -50,12 +50,22 @@ function work_with_spec_arr(){
   for(let j = 0 ; j < 4 ; j++)
   {
     for (let i = 0; i < 4; i++) {
-      spec_arr[0 + i +j ][4 + i - j] = n ;
-     spec_arr[0 + i +j ][3 + i - j] = (n + 4) ;
+      spec_arr[0 + i +j ][4 + i - j] ={ num : n, choose : false , cheker : null} ;
+     spec_arr[0 + i +j ][3 + i - j] = {num : n + 4 , choose : false , cheker : null} ;
       n++;
        } n += 4;
 } 
 
+}
+function first_filling_spec_arr(){
+ for(let j = 0 ; j < 4 ; j++)
+  {
+    for (let i = 0; i < 4; i++) { 
+      if(spec_arr[0 + i +j ][4 + i - j].num <= 12 ) spec_arr[0 + i +j ][4 + i - j].cheker = 'b';
+      if(spec_arr[0 + i +j ][4 + i - j].num >= 21 ) spec_arr[0 + i +j ][4 + i - j].cheker = 'w';
+      n++;
+       } n += 4;
+}  
 }
 function draw_desk_cells(x,y){
 ctx.beginPath();
@@ -133,32 +143,52 @@ for(let i  = 0; i < 8; i ++ ){
 }
 }
 function find_choosed_cell(){
+  let buffer;
 if(click && Xmouse <= 480 && Ymouse <= 480 ){
   for(let i = 1 ; i < 33 ; i++){
     let a = Xmouse > zone[i].x;
     let b = Xmouse < zone[i].x + 60; 
     let c = Ymouse > zone[i].y;
-    let d = Ymouse < zone[i].y + 60;  
-   if ( a && b & c && d) {zone[ i ].choose = true; choosen_cell = i;}
+    let d = Ymouse < zone[i].y + 60;
+   if ( a && b & c && d) {
+   // zone[ i ].choose = true;
+    buffer = choosen_cell_now;
+    choosen_cell_now = i;
+    if( choosen_cell_prev != i ) choosen_cell_prev = buffer;
+  }
   }
 }
+if(click && ( Xmouse >= 480 || Ymouse >= 480) ){
+  choosen_cell_now = 0;
+}
+if(choosen_cell_now != buffer) buffer = choosen_cell_now;
 }
 
-work_with_spec_arr();
+function move_on_60(){
+  if (choosen_cell_now - choosen_cell_prev == 4){ 
+                                         
+  }
+}
+function find_choosed_cheker(){
+  
+}
+
+
 draw_b_chekers_first();
 draw_w_chekers_first();
 find_zones();
-console.log(zone[32]);
 
 function draw(){
 
  ctx.clearRect(0, 0, canvas.width, canvas.height);
     draw_chekers();
 	draw_desk();
-find_choosed_cell()	 
-console.log(choosen_cell);
+find_choosed_cell();	 
 work_with_spec_arr();
+//console.log("now : " + choosen_cell_now);
+//console.log("pre : " + choosen_cell_prev);
+
 }
 //console.log(spec_arr[6][3] );
-setInterval(draw, 10);
+setInterval(draw, 100);
 console.log(spec_arr);
