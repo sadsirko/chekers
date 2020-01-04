@@ -61,6 +61,7 @@ function work_with_spec_arr() {
   }
 }
 
+//filling desk by chekers
 function first_filling() {
 
   for (let j = 0; j < 4; j++) {
@@ -131,7 +132,7 @@ function draw_chekers() {
   }
 }
 
-
+// find zones coordinates
 function find_zones() {
   let num = 1;
 
@@ -179,10 +180,12 @@ function move_w(now, pre) {
     find_spec_ar(pre).cheker = 'null';
   }
   if (b == 'w' && a == 'null'  && d) {
+    rules_2(now,pre).cheker = 'null';
     find_spec_ar(now).cheker = 'w';
     find_spec_ar(pre).cheker = 'null';
     flag++;
   }
+  //console.log(typeof(rules_3().num));
 }
 
 
@@ -192,7 +195,7 @@ function move_b(now, pre) {
   const b = find_spec_ar(pre).cheker;
   const c = rules_1(now, pre, 'black');
   const d = rules_2(now, pre);
-
+  //const e = rules_3();
 
   if (a == 'null' && b == 'b' &&  c) {
     find_spec_ar(now).cheker = 'b';
@@ -201,13 +204,16 @@ function move_b(now, pre) {
 
   if (a == 'null' && b == 'b' && d) {
     //    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    rules_2(now,pre).cheker = 'null';
     find_spec_ar(now).cheker = 'b';
     find_spec_ar(pre).cheker = 'null';
     flag--;
   }
+ //   console.log(typeof(rules_3().num));
+
 }
 
-
+// similar move
 function rules_1(now, pre, color) {
   let a1, a2, b1, b2;
   for (let j = 0; j < 4; j++) {
@@ -245,6 +251,7 @@ function rules_1(now, pre, color) {
   }
 
 }
+// kill by ususal cheker
 function rules_2(now, pre) {
   let a1, a2, b1, b2;
   for (let j = 0; j < 4; j++) {
@@ -270,28 +277,60 @@ function rules_2(now, pre) {
       }
     }
   }
-
-  if (((a2 - a1) == 2) && ((b1 - b2) == 0) && spec_arr[a2 - 1][b1].cheker != 'null') {
-    spec_arr[a2 - 1][b1].cheker = 'null';
-    return true;
+  let sa = spec_arr;
+  let sam = spec_arr[a2][b2].cheker;
+  if (((a2 - a1) == 2) && ((b1 - b2) == 0) && sa[a2 - 1][b1].cheker != sam && sa[a2 - 1][b1].cheker != 'null') {
+    return spec_arr[a2 - 1][b1];
   }
-  if (((a1 - a2) == 0) && ((b1 - b2) == 2) && spec_arr[a1][b2 + 1].cheker != 'null') {
-    spec_arr[a1][b2 + 1].cheker = 'null';
-    return true;
+  if (((a1 - a2) == 0) && ((b1 - b2) == 2) && sa[a1][b2 + 1].cheker != sam && sa[a1][b2 + 1].cheker != 'null') {
+    return spec_arr[a1][b2 + 1];
   }
-  if (((a1 - a2) == 2) && ((b1 - b2) == 0) && spec_arr[a2 + 1][b1].cheker != 'null') {
-    spec_arr[a2 + 1][b1].cheker = 'null';
-    return true;
+  if (((a1 - a2) == 2) && ((b1 - b2) == 0) && sa[a2 + 1][b1].cheker != sam && sa[a2 + 1][b1].cheker != 'null') {
+    return spec_arr[a2 + 1][b1];
   }
-  if (((a1 - a2) == 0) && ((b2 - b1) == 2) && spec_arr[a1][b2 - 1].cheker != 'null') {
-    spec_arr[a1][b2 - 1].cheker = 'null';
-    return true;
+  if (((a1 - a2) == 0) && ((b2 - b1) == 2) && sa[a1][b2 - 1].cheker != sam && sa[a1][b2 - 1].cheker != 'null') {
+    return spec_arr[a1][b2 - 1];
   }
   return false;
 
 
 }
+// chek opportunities
+function rules_3(){
+  let a1,b1;
+  for (let j = 0; j < 4; j++) {
+    for (let i = 0; i < 4; i++) {
+      const a = 0 + i + j;
+      const b = 4 + i - j;
+      if (spec_arr[a][b].cheker != 'null') {
+         a1 = a;
+         b1 = b;
+      }
+      if (spec_arr[a][b - 1].cheker != 'null') {
+        a1 = a;
+        b1 = b - 1;
+      }
+    
+  
+  let sa = spec_arr;
+  let sam = spec_arr[a1][b1].cheker;
+  if (typeof(sa[a1-1][b1]) && sa[a1 - 1][b1].cheker != sam  && sa[a1 - 1][b1].cheker != 'null' && sa[a1-2][b1].cheker == 'null') {
+    return spec_arr[a1][b1];
+  }
+  if (sa[a1][b1 + 1].cheker != sam && sa[a1][b1 + 1].cheker != 'null' && sa[a1][b1 + 2].cheker == 'null') {
+    return spec_arr[a1][b1 + 1];
+  }
+  if (sa[a1][b1 + 1].cheker != sam && sa[a1][b1 + 1].cheker != 'null' && sa[a1][b1 + 2].cheker == 'null') {
+    return spec_arr[a1 + 1][b1];
+  }
+  if (sa[a1][b1 - 1].cheker != sam && sa[a1][b1 - 1].cheker != 'null' && sa[a1][b1 - 2].cheker == 'null') {
+    return spec_arr[a1][b1 - 1];
+  }
+  return false;
 
+}
+}
+}
 function find_spec_ar(nn) {
   for (let j = 0; j < 4; j++) {
     for (let i = 0; i < 4; i++) {
