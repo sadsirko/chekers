@@ -17,7 +17,7 @@ let click = false;
 let Xmouse;
 let Ymouse;
 const zone = [];
-let choosen_cell_now = 0, choosen_cell_prev = null;
+let choosen_cell_now = 0, choosen_cell_prev = 'null';
 const spec_arr = [];
 let flag = 1;
 //for desk cells
@@ -174,18 +174,23 @@ function move_w(now, pre) {
   const a = find_spec_ar(now).cheker;
   const b = find_spec_ar(pre).cheker;
   const d = rules_2(now, pre);
-  console.log(c);
-  if (b == 'w' && a == 'null' && c) {
+  const e = rules_3('b');
+  if (b == 'w' && a == 'null' && c && !e) {
     find_spec_ar(now).cheker = 'w';
     find_spec_ar(pre).cheker = 'null';
   }
-  if (b == 'w' && a == 'null'  && d) {
+  if (b == 'w' && a == 'null'  && d && !e) {
     rules_2(now,pre).cheker = 'null';
     find_spec_ar(now).cheker = 'w';
     find_spec_ar(pre).cheker = 'null';
-    flag++;
+  // flag++;
   }
-  //console.log(typeof(rules_3().num));
+   if( e && e == d) {
+     rules_2(now,pre).cheker = 'null';
+     find_spec_ar(now).cheker = 'w';
+     find_spec_ar(pre).cheker = 'null';
+      }
+
 }
 
 
@@ -195,21 +200,25 @@ function move_b(now, pre) {
   const b = find_spec_ar(pre).cheker;
   const c = rules_1(now, pre, 'black');
   const d = rules_2(now, pre);
-  //const e = rules_3();
+  const e = rules_3('w');
 
-  if (a == 'null' && b == 'b' &&  c) {
+  if (a == 'null' && b == 'b' &&  c && !e) {
     find_spec_ar(now).cheker = 'b';
     find_spec_ar(pre).cheker = 'null';
   }
 
-  if (a == 'null' && b == 'b' && d) {
+  if (a == 'null' && b == 'b' && d && !e) {
     //    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     rules_2(now,pre).cheker = 'null';
     find_spec_ar(now).cheker = 'b';
     find_spec_ar(pre).cheker = 'null';
-    flag--;
+   // flag--;
   }
- //   console.log(typeof(rules_3().num));
+   if(e && e == d) {
+     rules_2(now,pre).cheker = 'null';
+     find_spec_ar(now).cheker = 'b';
+     find_spec_ar(pre).cheker = 'null';
+      }
 
 }
 
@@ -296,8 +305,9 @@ function rules_2(now, pre) {
 
 }
 // chek opportunities
-function rules_3(){
-  let a1,b1;
+function rules_3(anctol){
+  let a1,b1,b2;
+   let sa = spec_arr;
   for (let j = 0; j < 4; j++) {
     for (let i = 0; i < 4; i++) {
       const a = 0 + i + j;
@@ -305,31 +315,41 @@ function rules_3(){
       if (spec_arr[a][b].cheker != 'null') {
          a1 = a;
          b1 = b;
+         let sam = spec_arr[a1][b1].cheker;
+  if (a1 - 2 >= 0 && sa[a1 - 1][b1].cheker != sam  && sa[a1 - 1][b1].cheker == anctol && sa[a1-2][b1].cheker == 'null' && sam != anctol) {
+    return spec_arr[a1 - 1][b1];
+  }
+  if ( b1 + 2 <= 7 && sa[a1][b1 + 1].cheker != sam && sa[a1][b1 + 1].cheker == anctol && sa[a1][b1 + 2].cheker == 'null' && sam != anctol) {
+    return spec_arr[a1][b1 + 1];
+  }
+  if ( a1 + 2 <= 6 && sa[a1 + 1][b1 ].cheker != sam && sa[a1 + 1][b1].cheker == anctol && sa[a1 + 2][b1].cheker == 'null' && sam != anctol) {
+    return spec_arr[a1 + 1][b1];
+  }
+  if (b1 - 2 >=0 && sa[a1][b1 - 1].cheker != sam && sa[a1][b1 - 1].cheker == anctol && sa[a1][b1 - 2].cheker == 'null' && sam != anctol) {
+    return spec_arr[a1][b1 - 1];
+  }
       }
       if (spec_arr[a][b - 1].cheker != 'null') {
         a1 = a;
         b1 = b - 1;
-      }
-    
-  
-  let sa = spec_arr;
-  let sam = spec_arr[a1][b1].cheker;
-  if (typeof(sa[a1-1][b1]) && sa[a1 - 1][b1].cheker != sam  && sa[a1 - 1][b1].cheker != 'null' && sa[a1-2][b1].cheker == 'null') {
-    return spec_arr[a1][b1];
+           let sam = spec_arr[a1][b1].cheker;
+  if (a1 - 2 >= 0 && sa[a1 - 1][b1].cheker != sam  && sa[a1 - 1][b1].cheker == anctol && sa[a1-2][b1].cheker == 'null' && sam != anctol) {
+    return spec_arr[a1 - 1][b1];
   }
-  if (sa[a1][b1 + 1].cheker != sam && sa[a1][b1 + 1].cheker != 'null' && sa[a1][b1 + 2].cheker == 'null') {
+  if ( b1 + 2 <= 7 && sa[a1][b1 + 1].cheker != sam && sa[a1][b1 + 1].cheker == anctol && sa[a1][b1 + 2].cheker == 'null' && sam != anctol) {
     return spec_arr[a1][b1 + 1];
   }
-  if (sa[a1][b1 + 1].cheker != sam && sa[a1][b1 + 1].cheker != 'null' && sa[a1][b1 + 2].cheker == 'null') {
+  if ( a1 + 2 <= 6 && sa[a1 + 1][b1 ].cheker != sam && sa[a1 + 1][b1].cheker == anctol && sa[a1 + 2][b1].cheker == 'null' && sam != anctol) {
     return spec_arr[a1 + 1][b1];
   }
-  if (sa[a1][b1 - 1].cheker != sam && sa[a1][b1 - 1].cheker != 'null' && sa[a1][b1 - 2].cheker == 'null') {
+  if (b1 - 2 >=0 && sa[a1][b1 - 1].cheker != sam && sa[a1][b1 - 1].cheker == anctol && sa[a1][b1 - 2].cheker == 'null' && sam != anctol) {
     return spec_arr[a1][b1 - 1];
   }
-  return false;
+      }  
+}
+}
+return false;
 
-}
-}
 }
 function find_spec_ar(nn) {
   for (let j = 0; j < 4; j++) {
@@ -361,12 +381,12 @@ function draw() {
     if (find_spec_ar(choosen_cell_prev).cheker == 'w' && flag) {
       move_w(choosen_cell_now, choosen_cell_prev);
       if (find_spec_ar(choosen_cell_prev).cheker == 'null') flag--;
-    }
+   }
     if (find_spec_ar(choosen_cell_prev).cheker == 'b' && !flag) {
       move_b(choosen_cell_now, choosen_cell_prev);
-      if (find_spec_ar(choosen_cell_prev).cheker == 'null') flag++;
+     if (find_spec_ar(choosen_cell_prev).cheker == 'null') flag++;
     }
-
+   //    console.log(rules_3('w'));
     //console.log("now : " + choosen_cell_now);
     //console.log("pre : " + choosen_cell_prev);
     //console.log(find_spec_ar(choosen_cell_now));
