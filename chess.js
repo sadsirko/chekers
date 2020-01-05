@@ -17,7 +17,7 @@ let click = false;
 let Xmouse;
 let Ymouse;
 const zone = [];
-let choosen_cell_now = 0, choosen_cell_prev = 'null';
+let choosen_cell_now = 0, choosen_cell_prev = 19;
 const spec_arr = [];
 let flag = 1;
 //for desk cells
@@ -185,11 +185,17 @@ function move_w(now, pre) {
     find_spec_ar(pre).cheker = 'null';
   // flag++;
   }
-   if( e && e == d) {
+  inside();
+   function inside () { 
+     if( e && ( e == d)) {
      rules_2(now,pre).cheker = 'null';
      find_spec_ar(now).cheker = 'w';
      find_spec_ar(pre).cheker = 'null';
+     if (rules_3('b')) flag++;
       }
+    }
+    //if(e) flag++;
+  //  while( click && e) inside();
 
 }
 
@@ -214,11 +220,16 @@ function move_b(now, pre) {
     find_spec_ar(pre).cheker = 'null';
    // flag--;
   }
-   if(e && e == d) {
+  inside();
+   function inside () { 
+     if( e && (e == d)) {
      rules_2(now,pre).cheker = 'null';
      find_spec_ar(now).cheker = 'b';
      find_spec_ar(pre).cheker = 'null';
+      if (rules_3('w')) flag--;
       }
+    }
+   // while( click && e) inside();
 
 }
 
@@ -378,13 +389,21 @@ function draw() {
   find_choosed_cell();
 
   if (click) {
-    if (find_spec_ar(choosen_cell_prev).cheker == 'w' && flag) {
+    if ( find_spec_ar(choosen_cell_prev).cheker == 'w' && flag) {
       move_w(choosen_cell_now, choosen_cell_prev);
-      if (find_spec_ar(choosen_cell_prev).cheker == 'null') flag--;
+
+      if (find_spec_ar(choosen_cell_prev).cheker == 'null') {
+        flag--;
+      
+    }
+      
    }
     if (find_spec_ar(choosen_cell_prev).cheker == 'b' && !flag) {
       move_b(choosen_cell_now, choosen_cell_prev);
-     if (find_spec_ar(choosen_cell_prev).cheker == 'null') flag++;
+     if (find_spec_ar(choosen_cell_prev).cheker == 'null') {
+      flag++;
+     
+    }
     }
    //    console.log(rules_3('w'));
     //console.log("now : " + choosen_cell_now);
