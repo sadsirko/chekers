@@ -4,15 +4,29 @@
     <meta charset="utf-8" />
     <title>Gamedev Canvas Workshop</title>
     <style>
-    	* { padding: 0; margin: 0;outline: 2px solid #000;}
-    	canvas { background: #4a8ef6; display: block; margin: 10 auto; }
+    	* { padding: 0; margin: 0;}
+    	canvas { background: #4a8ef6; display: inline-block; margin: 10 auto; }
+    	#secCanvas{
+    		right: 100px;
+			top: 5px;  
+			 vertical-align: top;
+			 margin : 0;
+
+    	}
+    	#myCanvas{
+    		outline: 2px solid #000;
+         left: 600px;
+         top: 200px;
+         margin: 0 auto;
+    	}
     </style>
 </head>
 <body>
 
-<canvas id="myCanvas" width ='480' height = '480'></canvas>
+<canvas id ="myCanvas" width ='480' height = '480'></canvas>
+<canvas id="secCanvas" width ='80' height = '80' ></canvas>
 
-<script src = "chess.js">
+<script src = "cheker.js">
 
 </script>
 
