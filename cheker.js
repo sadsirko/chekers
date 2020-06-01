@@ -33,6 +33,7 @@ function mouseMoveHandlerY(e) {
   const relativeY = e.clientY - canvas.offsetLeft;
   Ymouse = relativeY;
 }
+
 function mousedown(e) {
   click = true;
 }
@@ -76,7 +77,6 @@ function firstFilling() {
     }
   }
 }
-
 
 function drawDeskCells(x, y) {
   ctx.beginPath();
@@ -329,6 +329,7 @@ function moveBCr(now, pre) {
   }
 
 }
+
 function moveWCr(now, pre) {
   const a = findSpecAr(now).cheker;
   const b = findSpecAr(pre).cheker;
@@ -360,27 +361,29 @@ function moveWCr(now, pre) {
 }
 // similar move
 function rules1(now, pre, color) {
-  let a1, a2, b1, b2;
+  let a1, a2, b1, b2,c,d;
   a1 = findSpecAr(now).a;
   b1 = findSpecAr(now).b;
 
   a2 = findSpecAr(pre).a;
   b2 = findSpecAr(pre).b;
+  c = (b1 - b2);
+  d = (a1 - a2);
   if (color === 'white') {
-    if (((a2 - a1) === 1) && ((b1 - b2) === 0)) return true;
-    if (((a1 - a2) === 0) && ((b1 - b2) === 1)) return true;
+    if (((a2 - a1) === 1) && (c === 0)) return true;
+    if ((d === 0) && (c === 1)) return true;
 
   }
   if (color === 'black') {
-    if (((a1 - a2) === 1) && ((b1 - b2) === 0)) return true;
-    if (((a1 - a2) === 0) && ((b2 - b1) === 1)) return true;
+    if ((d === 1) && (c === 0)) return true;
+    if ((d === 0) && ((b2 - b1) === 1)) return true;
 
   }
   if (color === 'Cr') {
-    if (((a2 - a1) === 1) && ((b1 - b2) === 0)) return true;
-    if (((a1 - a2) === 0) && ((b1 - b2) === 1)) return true;
-    if (((a1 - a2) === 1) && ((b1 - b2) === 0)) return true;
-    if (((a1 - a2) === 0) && ((b2 - b1) === 1)) return true;
+    if (((a2 - a1) === 1) && (c === 0)) return true;
+    if ((d === 0) && (c === 1)) return true;
+    if ((d === 1) && (c === 0)) return true;
+    if ((d === 0) && ((b2 - b1) === 1)) return true;
   }
   return false;
 }
@@ -412,6 +415,7 @@ function rules2(now, pre) {
 
 
 }
+
 function rules2Cr(now, pre, color) {
   let a1, a2, b1, b2;
 
@@ -422,17 +426,21 @@ function rules2Cr(now, pre, color) {
   b2 = findSpecAr(pre).b;
   const sa = specArr;
   const sam = specArr[a2][b2].cheker;
-  if (((a2 - a1) === 2) && ((b1 - b2) === 0) && sa[a2 - 1][b1].cheker !== sam && sa[a2 - 1][b1].cheker !== 'null' && sa[a2 - 1][b1].cheker !== color) {
-    return specArr[a2 - 1][b1];
+  let a = sa[a2 - 1][b1].cheker;
+  if (((a2 - a1) === 2) && ((b1 - b2) === 0) && a !== sam && a !== 'null' && a !== color) {
+    return a;
   }
-  if (((a1 - a2) === 0) && ((b1 - b2) === 2) && sa[a1][b2 + 1].cheker !== sam && sa[a1][b2 + 1].cheker !== 'null' && sa[a1][b2 + 1].cheker !== color) {
-    return specArr[a1][b2 + 1];
+let b = sa[a1][b2 + 1].cheker;
+  if (((a1 - a2) === 0) && ((b1 - b2) === 2) && b !== sam && b !== 'null' && b !== color) {
+    return b;
   }
-  if (((a1 - a2) === 2) && ((b1 - b2) === 0) && sa[a2 + 1][b1].cheker !== sam && sa[a2 + 1][b1].cheker !== 'null' && sa[a2 + 1][b1].cheker !== color) {
-    return specArr[a2 + 1][b1];
+  let c = sa[a2 + 1][b1].cheker;
+  if (((a1 - a2) === 2) && ((b1 - b2) === 0) && c !== sam && c !== 'null' && c !== color) {
+    return c;
   }
-  if (((a1 - a2) === 0) && ((b2 - b1) === 2) && sa[a1][b2 - 1].cheker !== sam && sa[a1][b2 - 1].cheker !== 'null' && sa[a1][b2 - 1].cheker !== color) {
-    return specArr[a1][b2 - 1];
+  let d = sa[a1][b2 - 1].cheker ;
+  if (((a1 - a2) === 0) && ((b2 - b1) === 2) && d !== sam && d !== 'null' && d !== color) {
+    return d;
   }
   return false;
 
@@ -499,6 +507,7 @@ function rules3(anctol) {
   return false;
 
 }
+
 function rules3Cr(col) {
   let a1,  b1, Cr;
   const sa = specArr;
@@ -550,6 +559,7 @@ function rules3Cr(col) {
   return false;
 
 }
+
 function findSpecAr(nn) {
   for (let j = 0; j < 4; j++) {
     for (let i = 0; i < 4; i++) {
@@ -568,6 +578,7 @@ function findSpecAr(nn) {
 findZones();
 workWithSpecArr();
 firstFilling();
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width , canvas.height);
   ctxturn.clearRect(0, 0 , 80, 80);
