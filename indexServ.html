@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<table id="chekers"></table>
+<style>
+input { border: 1px solid green; width: 30px; }
+</style>
+<canvas id="secCanvas" width ='80' height = '80' ></canvas>
+<canvas id ="canvas" width ='480' height = '480'></canvas>
+
+<script>
+const canvas = document.getElementById('myCanvas');
+const turncanvas = document.getElementById('secCanvas');
+document.addEventListener('mousemove', mouseMoveHandlerY, false);
+document.addEventListener('mousemove', mouseMoveHandlerX, false);
+document.addEventListener('mousedown', mousedown, false);
+document.addEventListener('mouseup', mouseup, false);
+const ctx = canvas.getContext('2d');
+const ctxturn = turncanvas.getContext('2d'); 
+
+
+const socket = new WebSocket('ws://127.0.0.1:8000/');
+
+
+socket.onopen = () => {
+
+    console.log('connected');
+   // socket.send("lalalend");
+  };
+
+  socket.onclose = () => {
+    console.log('closed');
+  };
+
+  socket.onmessage = event => {
+    console.log(event);
+  };
+
+
+
+
+</script>
+</body>
+</html>

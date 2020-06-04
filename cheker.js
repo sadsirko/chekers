@@ -418,7 +418,7 @@ function rules2(now, pre) {
 
 function rules2Cr(now, pre, color) {
   let a1, a2, b1, b2;
-
+  let a,b,c,d;
   a1 = findSpecAr(now).a;
   b1 = findSpecAr(now).b;
 
@@ -426,19 +426,19 @@ function rules2Cr(now, pre, color) {
   b2 = findSpecAr(pre).b;
   const sa = specArr;
   const sam = specArr[a2][b2].cheker;
-  let a = sa[a2 - 1][b1].cheker;
+   a = sa[a2 - 1][b1].cheker;
   if (((a2 - a1) === 2) && ((b1 - b2) === 0) && a !== sam && a !== 'null' && a !== color) {
     return a;
   }
-let b = sa[a1][b2 + 1].cheker;
+  b = sa[a1][b2 + 1].cheker;
   if (((a1 - a2) === 0) && ((b1 - b2) === 2) && b !== sam && b !== 'null' && b !== color) {
     return b;
   }
-  let c = sa[a2 + 1][b1].cheker;
+   c = sa[a2 + 1][b1].cheker;
   if (((a1 - a2) === 2) && ((b1 - b2) === 0) && c !== sam && c !== 'null' && c !== color) {
     return c;
   }
-  let d = sa[a1][b2 - 1].cheker ;
+   d = sa[a1][b2 - 1].cheker ;
   if (((a1 - a2) === 0) && ((b2 - b1) === 2) && d !== sam && d !== 'null' && d !== color) {
     return d;
   }

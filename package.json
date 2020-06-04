@@ -1,0 +1,26 @@
+{
+  "name": "chekers",
+  "version": "1.0.0",
+  "description": "play chess online",
+  "main": "cheker.js",
+  "scripts": {
+    "test": "chek"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sadsirko/chekers.git"
+  },
+  "keywords": [
+    "game"
+  ],
+  "author": "Denys Radchenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sadsirko/chekers/issues"
+  },
+  "homepage": "https://github.com/sadsirko/chekers#readme",
+  "dependencies": {
+    "websocket": "^1.0.31",
+    "ws": "^7.3.0"
+  }
+}
