@@ -10,6 +10,7 @@ const canvas = document.getElementById('myCanvas');
 const turncanvas = document.getElementById('secCanvas');
 const ctx = canvas.getContext('2d');
 const ctxturn = turncanvas.getContext('2d'); 
+console.log(canvas);
 // desk cells
 const cell = { };
 cell.height = 60;
@@ -23,27 +24,27 @@ const specArr = [];
 let flag = 1;
 //for desk cells
 
-function mouseMoveHandlerX(e) {
+function mouseMoveHandlerX(e) {//
   const relativeX = e.clientX - canvas.offsetLeft;
   Xmouse = relativeX;
 }
 
 
-function mouseMoveHandlerY(e) {
+function mouseMoveHandlerY(e) {//
   const relativeY = e.clientY - canvas.offsetLeft;
   Ymouse = relativeY;
 }
 
-function mousedown(e) {
+function mousedown(e) {//
   click = true;
 }
 
-function mouseup(e) {
+function mouseup(e) {//
   click = false;
 }
 
 
-function workWithSpecArr() {
+function workWithSpecArr() { //
   let n = 1;
   for (let i = 0; i < 7; i++) {
     specArr[i] = [];
@@ -64,7 +65,7 @@ function workWithSpecArr() {
 }
 
 //filling desk by chekers
-function firstFilling() {
+function firstFilling() { //
 
   for (let j = 0; j < 4; j++) {
     for (let i = 0; i < 4; i++) {
@@ -567,8 +568,10 @@ function findSpecAr(nn) {
       const b = 4 + i - j;
       if (specArr[a][b].num === nn) return specArr[a][b];
       if (specArr[a][b - 1].num === nn) return specArr[a][b - 1];
+      
     }
   }
+  return null;
 
 }
 
@@ -578,7 +581,7 @@ function findSpecAr(nn) {
 findZones();
 workWithSpecArr();
 firstFilling();
-
+const turn = 0;
 function draw() {
   ctx.clearRect(0, 0, canvas.width , canvas.height);
   ctxturn.clearRect(0, 0 , 80, 80);
@@ -598,8 +601,11 @@ function draw() {
 
 
    
-  if (click) {
-    if ((findSpecAr(choosenCellPrev).cheker === 'w' || findSpecAr(choosenCellPrev).cheker === 'wCr') && flag) {
+  if (click ) {
+    console.log(findSpecAr(choosenCellPrev));
+
+    //turn ++;
+    if (findSpecAr(choosenCellPrev) && ( findSpecAr(choosenCellPrev).cheker === 'w' || findSpecAr(choosenCellPrev).cheker === 'wCr') && flag) {
       moveWCr(choosenCellNow, choosenCellPrev);
       moveW(choosenCellNow, choosenCellPrev);
 
@@ -609,7 +615,7 @@ function draw() {
       }
 
     }
-    if ((findSpecAr(choosenCellPrev).cheker === 'b' || findSpecAr(choosenCellPrev).cheker === 'bCr') && !flag) {
+    if (findSpecAr(choosenCellPrev) &&(findSpecAr(choosenCellPrev).cheker === 'b' || findSpecAr(choosenCellPrev).cheker === 'bCr') && !flag) {
       moveBCr(choosenCellNow, choosenCellPrev);
       moveB(choosenCellNow, choosenCellPrev);
 
