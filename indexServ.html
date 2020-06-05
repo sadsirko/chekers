@@ -32,8 +32,8 @@ input { border: 1px solid green; width: 30px; }
 
   
   
-  const socket = new WebSocket('ws://127.0.0.1:8080/');
-
+  const socket = new WebSocket('ws://127.0.0.1:8000/');
+  let str;
   socket.onopen = () => {
  
       console.log('connected');
@@ -49,12 +49,12 @@ input { border: 1px solid green; width: 30px; }
     };
   
     socket.onmessage = event => {
-      //console.table(JSON.parse(event));
-      specArr =  event;
-
-      console.log(event.data);
-      //draw();
-
+      specArr =  JSON.parse(event.data);
+      
+      
+      if(!!flag) flag--;
+      else flag++;
+      draw()
     };
   
  
@@ -73,7 +73,7 @@ input { border: 1px solid green; width: 30px; }
   const xCord = 0;
   const yCord = 0;
   const zone = [];
-  const specArr = [];
+  let specArr = [];
   const cell = { height : 60, width :60};
   let click = false;
   let relativeX;
@@ -357,7 +357,6 @@ function moveW(now, pre) {
      
 
     }
-    socket.send(JSON.stringify(specArr));
   }
 
  // console.log(findSpecAr(now));
@@ -621,6 +620,7 @@ function rules3Cr(col) {
       const b = 4 + i - j;
       if (col === 'w') Cr = 'wCr';
       if (col === 'b') Cr = 'bCr';
+      console.log(a);
       if (specArr[a][b].cheker === Cr) {
         // console.log(specArr[a][b])
         a1 = a;
@@ -688,18 +688,18 @@ function draw() {
     if (findSpecAr(choosenCellPrev)&&(findSpecAr(choosenCellPrev).cheker === 'w' || findSpecAr(choosenCellPrev).cheker === 'wCr') && flag) {
       moveWCr(choosenCellNow, choosenCellPrev);
       moveW(choosenCellNow, choosenCellPrev);
-
       if (findSpecAr(choosenCellPrev).cheker === 'null') {
-        flag--;
-      }
+        flag--;       socket.send(JSON.stringify(specArr));
+
+      } 
 
     }
     if (findSpecAr(choosenCellPrev)&&(findSpecAr(choosenCellPrev).cheker === 'b' || findSpecAr(choosenCellPrev).cheker === 'bCr') && !flag) {
       moveBCr(choosenCellNow, choosenCellPrev);
       moveB(choosenCellNow, choosenCellPrev);
-
       if (findSpecAr(choosenCellPrev).cheker === 'null') {
-        flag++;
+        flag++;      socket.send(JSON.stringify(specArr));
+
 
       }
 
@@ -718,17 +718,14 @@ firstFilling();
 draw();
 }
 
-//setInterval(draw, 30);
-    //  findZones();
-    //  workWithSpecArr();
-    //  firstFilling();
-    //  drawDesk(canvas,ctx);
-    funcForStart();
+
+
+ funcForStart();
   
   
   
   
-  </script>
+</script>
 
 </body>
 </html>

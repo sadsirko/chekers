@@ -35,8 +35,8 @@ for (let j = 0; j < 4; j++) {
 }
 }
 
-server.listen(8080, () => {
-  console.log('Listen port 8080');
+server.listen(8000, () => {
+  console.log('Listen port 8000');
 });
 
 const ws = new Websocket({
@@ -54,10 +54,9 @@ ws.on('message', (message) => {
 })
 
 ws.on('request', req => {
+  workWithSpecArr();
 
 
-
-  const specArr =[];
   const connection = req.accept('', req.origin);
   clients.push(connection);
   console.log('Connected ' + connection.remoteAddress);
