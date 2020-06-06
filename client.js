@@ -20,6 +20,8 @@ canvas.addEventListener('mouseup', mouseup, false);
 
 const zone = [];
 const CHEKER_R = 25;
+const LINES = 4;
+const USABLE_CELL = 32;
 let specArr = [];
 const cell = { height: 60, width: 60 };
 let click = false;
@@ -198,11 +200,12 @@ const drawchekerWCr = (x, y) => {
 
 const  drawChekers = () => {
   const color = c =>{
+    const halfS = cell.width / 2; 
     switch (c.cheker) {
-      case 'w': return drawchekerW(c.x + 30, c.y + 30);
-      case 'b': return drawchekerB(c.x + 30, c.y + 30);
-      case 'wCr': return drawchekerWCr(c.x + 30, c.y + 30);
-      case 'bCr': return drawchekerBCr(c.x + 30, c.y + 30);
+      case 'w': return drawchekerW(c.x + halfS, c.y + halfS);
+      case 'b': return drawchekerB(c.x + halfS, c.y + halfS);
+      case 'wCr': return drawchekerWCr(c.x + halfS, c.y + halfS);
+      case 'bCr': return drawchekerBCr(c.x + halfS, c.y + halfS);
       
     }
   }
@@ -221,37 +224,34 @@ const  drawChekers = () => {
 
 // find zones coordinates
 
-
 function findChoosedCell() {
   let buffer;
-  if (click && relativeX <= 480 && relativeY <= 480) {
-    for (let i = 1; i < 33; i++) {
+  
+    for (let i = 1; i <= USABLE_CELL; i++) {
       const a = relativeX > zone[i].x;
-      const b = relativeX < zone[i].x + 60;
+      const b = relativeX < zone[i].x + cell.width;
       const c = relativeY > zone[i].y;
-      const d = relativeY < zone[i].y + 60;
+      const d = relativeY < zone[i].y + cell.width;
       if (a && b & c && d && i !== choosenCellNow) {
         choosenCellPrev = choosenCellNow;
         choosenCellNow = i;
       }
     }
-  }
-  if (click && (relativeX >= 480 || relativeY >= 480)) {
-    choosenCellNow = 0;
-  }
   if (choosenCellNow !== buffer) buffer = choosenCellNow;
 }
 
-function chekOnCrown() {
-  for (let j = 1; j <= 4; j++) {
-    if (findSpecAr(j + 28).cheker === 'b') findSpecAr(j + 28).cheker = 'bCr';
-    if (findSpecAr(j).cheker === 'w') findSpecAr(j).cheker = 'wCr';
+const chekOnCrown = () => {
+  for (let j = 1; j <= LINES; j++) {
+    if (findSpecAr(j + USABLE_CELL - LINES).cheker === 'b') 
+    findSpecAr(j + USABLE_CELL - LINES).cheker = 'bCr';
+    if (findSpecAr(j).cheker === 'w') 
+    findSpecAr(j).cheker = 'wCr';
   }
 }
 
 function findSpecAr(nn) {
-  for (let j = 0; j < 4; j++) {
-    for (let i = 0; i < 4; i++) {
+  for (let j = 0; j < LINES; j++) {
+    for (let i = 0; i < LINES; i++) {
       const a = 0 + i + j;
       const b = 4 + i - j;
       if (specArr[a][b].num === nn) return specArr[a][b];
@@ -262,94 +262,48 @@ function findSpecAr(nn) {
 
 }
 
-function moveW(now, pre) {
+const move = (now, pre ,you, enemy) =>
+{
 
-  const c = ruleForStep(now, pre, 'white');
-  const a = findSpecAr(now).cheker;
-  const b = findSpecAr(pre).cheker;
-  const d = ruleToKill(now, pre);
-  const e = ruleOpportTo('b');
-  const f = ruleOpportToCr('w');
-  if (b === 'w' && a === 'null' && c && !e && !f) {
-    findSpecAr(now).cheker = 'w';
-    findSpecAr(pre).cheker = 'null';
-
-  }
-  if (b === 'w' && a === 'null'  && d && !e && !f) {
-    ruleToKill(now, pre).cheker = 'null';
-    findSpecAr(now).cheker = 'w';
-    findSpecAr(pre).cheker = 'null';
-
-  }
-  inside();
-  function inside() {
+  const inside = (e,d,now,pre) => {
     if (e && (e === d)) {
       ruleToKill(now, pre).cheker = 'null';
-      findSpecAr(now).cheker = 'w';
+      findSpecAr(now).cheker = you;
       findSpecAr(pre).cheker = 'null';
-      if (ruleOpportTo('b')) flag++;
+      if (ruleOpportTo(enemy)) flag++;
 
 
     }
   }
+  
+
+  const c = ruleForStep(now, pre, you);
+  const a = findSpecAr(now).cheker;
+  const b = findSpecAr(pre).cheker;
+  const d = ruleToKill(now, pre);
+  const e = ruleOpportTo(enemy);
+  const f = ruleOpportToCr(you);
+  if (b === you && a === 'null' && c && !e && !f) {
+    if(c){
+      findSpecAr(now).cheker = you;
+      findSpecAr(pre).cheker = 'null';
+    }
+    if(d) {
+    ruleToKill(now, pre).cheker = 'null';
+    findSpecAr(now).cheker = you;
+    findSpecAr(pre).cheker = 'null';
+    }
+  }
+
+  inside(e,d,now,pre);
 
 }
 
 
 
-function moveB(now, pre) {
-  const a = findSpecAr(now).cheker;
-  const b = findSpecAr(pre).cheker;
-  const c = ruleForStep(now, pre, 'black');
-  const d = ruleToKill(now, pre);
-  const e = ruleOpportTo('w');
-  const f = ruleOpportToCr('b');
+const moveCr = (now, pre, you, enemy, youCr) => {
 
-
-  if (a === 'null' && b === 'b' &&  c && !e && !f) {
-    findSpecAr(now).cheker = 'b';
-    findSpecAr(pre).cheker = 'null';
-  }
-
-  if (a === 'null' && b === 'b' && d && !e && !f) {
-    ruleToKill(now, pre).cheker = 'null';
-    findSpecAr(now).cheker = 'b';
-    findSpecAr(pre).cheker = 'null';
-  }
-  inside();
-  function inside() {
-    if (e && (e === d)) {
-      ruleToKill(now, pre).cheker = 'null';
-      findSpecAr(now).cheker = 'b';
-      findSpecAr(pre).cheker = 'null';
-      if (ruleOpportTo('w')) flag--;
-    }
-  }
-
-}
-
-function moveBCr(now, pre) {
-  const a = findSpecAr(now).cheker;
-  const b = findSpecAr(pre).cheker;
-  const c = ruleForStep(now, pre, 'Cr');
-  const d = ruleToKillCr(now, pre, 'b');
-  const e = ruleOpportToCr('b');
-  const f = ruleOpportTo('w');
-
-
-
-  if (a === 'null' && b === 'bCr' &&  c && !e && !f) {
-    findSpecAr(now).cheker = 'bCr';
-    findSpecAr(pre).cheker = 'null';
-  }
-  if (a === 'null' && b === 'bCr' && d && !e && !f) {
-    ruleToKillCr(now, pre, 'b').cheker = 'null';
-    findSpecAr(now).cheker = 'bCr';
-    findSpecAr(pre).cheker = 'null';
-  }
-  inside();
-
-  function inside() {
+  const inside = (now,pre,e,d) => {
     if (e && (e === d)) {
       ruleToKillCr(now, pre, 'b').cheker = 'null';
       findSpecAr(now).cheker = 'bCr';
@@ -358,37 +312,29 @@ function moveBCr(now, pre) {
     }
   }
 
-}
-
-function moveWCr(now, pre) {
   const a = findSpecAr(now).cheker;
   const b = findSpecAr(pre).cheker;
   const c = ruleForStep(now, pre, 'Cr');
-  const d = ruleToKillCr(now, pre, 'w');
-  const e = ruleOpportToCr('w');
-  const f = ruleOpportTo('b');
+  const d = ruleToKillCr(now, pre, you);
+  const e = ruleOpportToCr(you);
+  const f = ruleOpportTo(enemy);
 
-  if (a === 'null' && b === 'wCr' &&  c && !e && !f) {
-    findSpecAr(now).cheker = 'wCr';
+
+
+  if (a === 'null' && b === youCr && !e && !f) {
+    if(c){
+      findSpecAr(now).cheker = youCr;
     findSpecAr(pre).cheker = 'null';
   }
-
-  if (a === 'null' && b === 'wCr' && d && !e && !f) {
-    ruleToKillCr(now, pre, 'w').cheker = 'null';
-    findSpecAr(now).cheker = 'wCr';
+  if (d) {
+    ruleToKillCr(now, pre, you).cheker = 'null';
+    findSpecAr(now).cheker = youCr;
     findSpecAr(pre).cheker = 'null';
   }
-  inside();
-  function inside() {
-    if (e && (e === d)) {
-      ruleToKillCr(now, pre, 'w').cheker = 'null';
-      findSpecAr(now).cheker = 'wCr';
-      findSpecAr(pre).cheker = 'null';
-      if (ruleOpportToCr('w')) flag++;
-    }
-  }
-
 }
+  inside(now,pre,e,d);
+}
+
 // similar move
 function ruleForStep(now, pre, color) {
   const a1 = findSpecAr(now).a;
@@ -397,12 +343,12 @@ function ruleForStep(now, pre, color) {
   const b2 = findSpecAr(pre).b;
   const c = (b1 - b2);
   const d = (a1 - a2);
-  if (color === 'white') {
+  if (color === 'w') {
     if (((a2 - a1) === 1) && (c === 0)) return true;
     if ((d === 0) && (c === 1)) return true;
 
   }
-  if (color === 'black') {
+  if (color === 'b') {
     if ((d === 1) && (c === 0)) return true;
     if ((d === 0) && ((b2 - b1) === 1)) return true;
 
@@ -483,19 +429,19 @@ function ruleToKillCr(now, pre, color) {
 
   if ((a2 - a1) === 2) a = sa[a2 - 1][b1].cheker;
   if (((a2 - a1) === 2) && ((b1 - b2) === 0) && lockBull(a, sam, color)) {
-    return a;
+    return sa[a2 - 1][b1];
   }
   if ((a2 - a1) === 2) b = sa[a1][b2 + 1].cheker;
   if (((a1 - a2) === 0) && ((b1 - b2) === 2) && lockBull(b, sam, color)) {
-    return b;
+    return  sa[a1][b2 + 1];
   }
   if ((a1 - a2) === 2) c = sa[a2 + 1][b1].cheker;
   if (((a1 - a2) === 2) && ((b1 - b2) === 0) && lockBull(c, sam, color)) {
-    return c;
+    return sa[a2 + 1][b1];
   }
   if ((a1 - a2) === 2) d = sa[a1][b2 - 1].cheker;
   if (((a1 - a2) === 0) && ((b2 - b1) === 2) && lockBull(d, sam, color)) {
-    return d;
+    return sa[a1][b2 - 1];
   }
   return false;
 }
@@ -688,6 +634,7 @@ function draw() {
       drawMust(ruleOpportToCr('w').x, ruleOpportToCr('w').y);
     }
     if (ruleOpportTo('b')) {
+
       drawMust(ruleOpportTo('b').x, ruleOpportTo('b').y);
     }
   }
@@ -698,8 +645,8 @@ function draw() {
       const cBool = findSpecAr(choosenCellPrev).cheker === 'w';
       const aBool = (cBool || findSpecAr(choosenCellPrev).cheker === 'wCr');
       if (aBool) {
-        moveWCr(choosenCellNow, choosenCellPrev);
-        moveW(choosenCellNow, choosenCellPrev);
+        moveCr(choosenCellNow, choosenCellPrev,'w','b','wCr');
+        move(choosenCellNow, choosenCellPrev, 'w', 'b');
         if (findSpecAr(choosenCellPrev).cheker === 'null') {
           flag--;       socket.send(JSON.stringify(specArr));
 
@@ -710,8 +657,8 @@ function draw() {
       const dBool = findSpecAr(choosenCellPrev).cheker === 'b';
       const bBool = (dBool || findSpecAr(choosenCellPrev).cheker === 'bCr');
       if (bBool) {
-        moveBCr(choosenCellNow, choosenCellPrev);
-        moveB(choosenCellNow, choosenCellPrev);
+        moveCr(choosenCellNow, choosenCellPrev,'b', 'w','bCr');
+        move(choosenCellNow, choosenCellPrev , 'b', 'w');
         if (findSpecAr(choosenCellPrev).cheker === 'null') {
           flag++;      socket.send(JSON.stringify(specArr));
 
