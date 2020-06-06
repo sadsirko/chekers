@@ -3,10 +3,6 @@
 
 const socket = new WebSocket('ws://127.0.0.1:8080/');
 
-
-
-
-
 const  canvas = document.getElementById('myCanvas');
 const turncanvas = document.getElementById('secCanvas');
 const ctx = canvas.getContext('2d');
@@ -16,9 +12,14 @@ canvas.addEventListener('mousemove', mouseMoveHandlerY, false);
 canvas.addEventListener('mousemove', mouseMoveHandlerX, false);
 canvas.addEventListener('mousedown', mousedown, false);
 canvas.addEventListener('mouseup', mouseup, false);
+/*
+
+
+*/
 
 
 const zone = [];
+const CHEKER_R = 25;
 let specArr = [];
 const cell = { height: 60, width: 60 };
 let click = false;
@@ -29,49 +30,57 @@ let flag = 1;
 
 const  findZones = () => {
   let num = 1;
+  const side = cell.height;
   for (let i  = 0; i < 8; i++) {
     for (let j  = 0; j < 4; j++) {
       zone[num] = { };
-      if (i % 2 === 0) zone[num] = { x: 60 + 120 * j, y: i * 60  };
-      else zone[num] = { x:  120 * j, y: i * 60  };
+      if (i % 2 === 0) zone[num] = { x: side + 2 * side * j, y: i * side  };
+      else zone[num] = { x:  2 * side * j, y: i * side  };
       num++;
     }
   }
 };
 
 const workWithSpecArr = () => {
-  let n = 1;
-  for (let i = 0; i < 7; i++) {
+  let numCell = 1;
+  const specArrHeight = 7;
+  const specArrWidth = 8;
+  for (let i = 0; i < specArrHeight; i++) {
     specArr[i] = [];
-    for (let j = 0; j < 8; j++) {
+    for (let j = 0; j < specArrWidth; j++) {
       specArr[i][j] = {};
     }
   }
 
+  const side = cell.height;
   for (let j = 0; j < 4; j++) {
     for (let i = 0; i < 4; i++) {
       const a = 0 + i + j;
       const b = 4 + i - j;
-      specArr[a ][b] = { num: n, choose: false,
-        cheker: 'null', x: 60 + 120 * i, y: 0 +  120 * j, a, b };
-      specArr[a ][b - 1] = { num: n + 4, choose: false,
-        cheker: 'null', x: 0 + 120 * i, y: 60 +  120 * j, a, b: b - 1  };
-      n++;
-    } n += 4;
+      specArr[a ][b] = { num: numCell, choose: false, cheker: 'null',
+        x: side + 2 * side * i, y: 0 +  2 * side * j, a, b };
+      specArr[a ][b - 1] = { num: numCell + 4, choose: false, cheker: 'null',
+        x: 0 + 2 * side * i, y: side +  2 * side * j, a, b: b - 1 };
+        numCell++;
+    } numCell += 4;
   }
 };
 
 const firstFilling = () => { //
-
-  for (let j = 0; j < 4; j++) {
-    for (let i = 0; i < 4; i++) {
+ let chekInLine = 4;
+ const fillCell = (arr, a, b, col, pos1, pos2) =>{
+  const d = arr[a][b];
+  const e = arr[a][b - 1];
+   if( d.num <= pos2 && d.num >= pos1 ) d.cheker = col;
+   if( e.num <= pos2 && e.num >= pos1 ) e.cheker = col;
+ }; 
+  for (let j = 0; j < chekInLine; j++) {
+    for (let i = 0; i < chekInLine; i++) {
       const a = 0 + i + j;
       const b = 4 + i - j;
-      if (specArr[a][b].num <= 12) specArr[a][b].cheker = 'b';
-      if (specArr[a][b - 1].num <= 12) specArr[a][b - 1].cheker = 'b';
-      if (specArr[a][b].num >= 21) specArr[a][b].cheker = 'w';
-      if (specArr[a][b - 1].num >= 21) specArr[a][b - 1].cheker = 'w';
-    }
+      fillCell(specArr,a,b,'b',0,12);
+      fillCell(specArr,a,b,'w',21,32);
+         }
   }
 };
 
@@ -96,11 +105,9 @@ function mousedown(e) {
   click = true;
   relativeY = mouseMoveHandlerY(e);
   relativeX = mouseMoveHandlerX(e);
+  
   findChoosedCell();
-
   draw();
-
-
 }
 
 function mouseup() {
@@ -117,7 +124,7 @@ function mouseMoveHandlerX(e) {
 }
 
 
-
+// what you must beat
 const  drawMust = (x, y) => {
   ctx.beginPath();
   ctx.rect(x, y, cell.height, cell.width);
@@ -131,12 +138,12 @@ const  drawMust = (x, y) => {
   ctx.fill();
   ctx.closePath();
 };
+
 //draw cheker
-
 const druwTurn = flag => {
-
+  const pos = turncanvas.width / 2;
   ctxturn.beginPath();
-  ctxturn.arc(40, 40, 35, 0, Math.PI * 2, false);
+  ctxturn.arc(pos, pos, pos - 5, 0, Math.PI * 2, false);
   if (!flag) ctxturn.fillStyle = 'black';
   else  ctxturn.fillStyle = 'white';
   ctxturn.fill();
@@ -145,7 +152,7 @@ const druwTurn = flag => {
 
 const drawchekerB = (x, y) => {
   ctx.beginPath();
-  ctx.arc(x, y, 25, 0, Math.PI * 2, false);
+  ctx.arc(x, y, CHEKER_R, 0, Math.PI * 2, false);
   ctx.fillStyle = 'black';
   ctx.fill();
   ctx.closePath();
@@ -153,12 +160,12 @@ const drawchekerB = (x, y) => {
 
 const drawchekerBCr = (x, y) => {
   ctx.beginPath();
-  ctx.arc(x, y, 25, 0, Math.PI * 2, false);
+  ctx.arc(x, y, CHEKER_R, 0, Math.PI * 2, false);
   ctx.fillStyle = 'black';
   ctx.fill();
   ctx.closePath();
   ctx.beginPath();
-  ctx.arc(x, y, 20, 0, Math.PI * 2, false);
+  ctx.arc(x, y, CHEKER_R - 5, 0, Math.PI * 2, false);
   ctx.fillStyle = '#0774a6';
   ctx.fill();
   ctx.closePath();
@@ -167,7 +174,7 @@ const drawchekerBCr = (x, y) => {
 
 const drawchekerW = (x, y) => {
   ctx.beginPath();
-  ctx.arc(x, y, 25, 0, Math.PI * 2, false);
+  ctx.arc(x, y, CHEKER_R, 0, Math.PI * 2, false);
   ctx.fillStyle = 'white';
   ctx.fill();
   ctx.closePath();
@@ -175,12 +182,12 @@ const drawchekerW = (x, y) => {
 
 const drawchekerWCr = (x, y) => {
   ctx.beginPath();
-  ctx.arc(x, y, 25, 0, Math.PI * 2, false);
+  ctx.arc(x, y, CHEKER_R, 0, Math.PI * 2, false);
   ctx.fillStyle = 'white';
   ctx.fill();
   ctx.closePath();
   ctx.beginPath();
-  ctx.arc(x, y, 20, 0, Math.PI * 2, false);
+  ctx.arc(x, y, CHEKER_R -  5, 0, Math.PI * 2, false);
   ctx.fillStyle = '#0774a6';
   ctx.fill();
   ctx.closePath();
@@ -190,20 +197,24 @@ const drawchekerWCr = (x, y) => {
 
 
 const  drawChekers = () => {
+  const color = c =>{
+    switch (c.cheker) {
+      case 'w': return drawchekerW(c.x + 30, c.y + 30);
+      case 'b': return drawchekerB(c.x + 30, c.y + 30);
+      case 'wCr': return drawchekerWCr(c.x + 30, c.y + 30);
+      case 'bCr': return drawchekerBCr(c.x + 30, c.y + 30);
+      
+    }
+  }
+
   for (let j = 0; j < 4; j++) {
     for (let i = 0; i < 4; i++) {
       const a = 0 + i + j;
       const b = 4 + i - j;
       const c = specArr[a][b];
       const d = specArr[a][b - 1];
-      if (c.cheker === 'w') drawchekerW(c.x + 30, c.y + 30);
-      if (d.cheker === 'w') drawchekerW(d.x + 30, d.y + 30);
-      if (c.cheker === 'b') drawchekerB(c.x + 30, c.y + 30);
-      if (d.cheker === 'b') drawchekerB(d.x + 30, d.y + 30);
-      if (c.cheker === 'wCr') drawchekerWCr(c.x + 30, c.y + 30);
-      if (d.cheker === 'wCr') drawchekerWCr(d.x + 30, d.y + 30);
-      if (c.cheker === 'bCr') drawchekerBCr(c.x + 30, c.y + 30);
-      if (d.cheker === 'bCr') drawchekerBCr(d.x + 30, d.y + 30);
+      color(c);
+      color(d);
     }
   }
 };
@@ -630,13 +641,13 @@ function ruleOpportToCr(col) {
 
         const sam = specArr[a1][b1].cheker;
         if (a1 - 2 >= 0)   {
-          const aa = locBool('b', 'bCr', 'w', a1 - 1, b1, a1 - 2, b1, sam);
+          const aa = locBool('b', 'bCr', a1 - 1, b1, a1 - 2, b1, sam);
 
           if (aa)  return specArr[a1 - 1][b1];
         }
 
         if (b1 + 2 <= 7)  {
-          const bb = locBool('b', 'bCr', 'w', a1, b1 + 1, a1, b1 + 2, sam);
+          const bb = locBool('b', 'bCr', a1, b1 + 1, a1, b1 + 2, sam);
 
           if (bb) return specArr[a1][b1 + 1];
         }
