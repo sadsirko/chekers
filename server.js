@@ -7,7 +7,7 @@ const clients = [];
 
 
 
-const server =http.createServer( async (req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = req.url === '/' ? '/index.html' : req.url;
   const [file] = url.substring(1).split('/');
   const path = `./${file}`;
@@ -18,7 +18,7 @@ const server =http.createServer( async (req, res) => {
     res.statusCode = 404;
     res.end('"File is not found"');
   }
-})
+});
 
 
 server.listen(8080, () => {
@@ -41,7 +41,7 @@ ws.on('request', req => {
   connection.on('message', message => {
     const dataName = message.type + 'Data';
     const data = message[dataName];
-   clients.forEach(client => {
+    clients.forEach(client => {
       if (connection !== client) {
         client.send(data);
       }
