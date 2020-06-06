@@ -635,7 +635,8 @@ function ruleOpportToCr(col) {
   let a1,  b1, Cr;
   const sa = specArr;
 
-    const locBool = (col, colCr, a, b, a2, b2, sam) => {
+    const locBool = (col, colCr, a, b, a2, b2, sam) => 
+    {
     const firstCell = specArr[a][b].cheker;
     const secondCell = specArr[a2][b2].cheker;
     const e = (firstCell !==  sam && firstCell !== col);

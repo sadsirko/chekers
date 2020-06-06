@@ -3,7 +3,7 @@
 const fs = require('fs');
 const http = require('http');
 const Websocket = require('websocket').server;
-const index = fs.readFileSync('./index.html', 'utf8');
+const index = fs.readFileSync('./indexServ.html', 'utf8');
 const clients = [];
 //const specArr = [];
 
