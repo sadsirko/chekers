@@ -3,15 +3,22 @@
 const fs = require('fs');
 const http = require('http');
 const Websocket = require('websocket').server;
-const index = fs.readFileSync('./indexServ.html', 'utf8');
 const clients = [];
-//const specArr = [];
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end(index);
-});
 
+
+const server =http.createServer( async (req, res) => {
+  const url = req.url === '/' ? '/index.html' : req.url;
+  const [file] = url.substring(1).split('/');
+  const path = `./${file}`;
+  try {
+    const data = await fs.promises.readFile(path);
+    res.end(data);
+  } catch (err) {
+    res.statusCode = 404;
+    res.end('"File is not found"');
+  }
+})
 
 
 server.listen(8080, () => {
@@ -25,15 +32,7 @@ const ws = new Websocket({
 
 
 
-ws.on('message', message => {
-
-  //log the received message and send it back to the client
-  console.log('received: ', message);
-  ws.send(`Hello, you sent -> ${message}`);
-});
-
 ws.on('request', req => {
-  // workWithSpecArr();
 
 
   const connection = req.accept('', req.origin);
@@ -42,11 +41,7 @@ ws.on('request', req => {
   connection.on('message', message => {
     const dataName = message.type + 'Data';
     const data = message[dataName];
-    // const obj = JSON.parse(data);
-    //  console.dir(`X: ${obj.x}, Y : ${obj.y}`);
-    //   console.dir(message);
-    // console.log('Received: ' + data);
-    clients.forEach(client => {
+   clients.forEach(client => {
       if (connection !== client) {
         client.send(data);
       }

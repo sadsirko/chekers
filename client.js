@@ -1,35 +1,3 @@
-<!DOCTYPE html>
-<html>
-
-
-
-<meta charset="utf-8" />
-<link rel="stylesheet" href="style.css">
-
-<style>
-input { border: 1px solid green; width: 30px; }
-* { padding: 0; margin: 0;}
-    	canvas { background: #4a8ef6; display: inline-block; margin: 10 auto; }
-    	#secCanvas{
-    		right: 100px;
-			top: 5px;  
-			 vertical-align: top;
-			 margin : 0;
-
-    	}
-    	#myCanvas{
-    		outline: 2px solid #000;
-         left: 600px;
-         top: 200px;
-         margin: 0 auto;
-    	}
-</style>
-<body>
-  <canvas id ="myCanvas" width ='480' height = '480'></canvas>
-<canvas id="secCanvas" width ='80' height = '80' ></canvas>
-
-<script>
-
 
 'use strict';
 
@@ -804,10 +772,3 @@ socket.onmessage = event => {
 
 
 
-
-  
-  
-</script>
-
-</body>
-</html>
