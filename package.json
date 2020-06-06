@@ -22,5 +22,8 @@
   "dependencies": {
     "websocket": "^1.0.31",
     "ws": "^7.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.1.0"
   }
 }
