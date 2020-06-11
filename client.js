@@ -12,13 +12,13 @@ canvas.addEventListener('mousemove', mouseMoveHandlerY, false);
 canvas.addEventListener('mousemove', mouseMoveHandlerX, false);
 canvas.addEventListener('mousedown', mousedown, false);
 canvas.addEventListener('mouseup', mouseup, false);
-/*
 
 
-*/
 
 
-class Cells {
+
+
+class Draw {
   constructor() {
     this.ctx = canvas.getContext('2d');
     this.ctxturn = turncanvas.getContext('2d');
@@ -76,16 +76,101 @@ class Cells {
     ctx.fill();
     ctx.closePath();
   }
+}
+
+class Cell{
+  constructor(num, cheker, x, y , a , b){
+    this.num = num;
+    this.cheker = cheker;
+    this.x = x;
+    this.y = y;
+    this.a = a;
+    this.b = b;
+  }
+}
+
+class ChekArr{
+  constructor(arr){
+    this.arr = arr;
+  }
+
+  workWithSpecArr(){
+    let numCell = 1;
+    const specArrHeight = 7;
+    const specArrWidth = 8;
+    for (let i = 0; i < specArrHeight; i++) {
+      this.arr[i] = [];
+      for (let j = 0; j < specArrWidth; j++) {
+        this.arr[i][j] = {};
+      }
+    }
+  
+    const side = cell.height;
+    for (let j = 0; j < 4; j++) {
+      for (let i = 0; i < 4; i++) {
+        const a = 0 + i + j;
+        const b = 4 + i - j;
+        this.arr[a][b] = new Cell(numCell,'null', side + 2 * side * i, 2 * side * j, a, b);
+        this.arr[a][b - 1] = new Cell(numCell + 4,'null', 2 * side * i, 
+                                     side +  2 * side * j, a, b - 1);
+        numCell++;
+      } numCell += 4;
+    }
+  };
+
+  drawChekers(){
+    const color = c => {
+      const halfS = cell.width / 2;
+      switch (c.cheker) {
+      case 'w': return drawing.drawcheker(c.x + halfS, c.y + halfS, 'w');
+      case 'b': return drawing.drawcheker(c.x + halfS, c.y + halfS, 'b');
+      case 'wCr': return drawing.drawchekerCr(c.x + halfS, c.y + halfS, 'w');
+      case 'bCr': return drawing.drawchekerCr(c.x + halfS, c.y + halfS, 'b');
+  
+      }
+    };
+  
+    for (let j = 0; j < 4; j++) {
+      for (let i = 0; i < 4; i++) {
+        const a = 0 + i + j;
+        const b = 4 + i - j;
+        const c = this.arr[a][b];
+        const d = this.arr[a][b - 1];
+        color(c);
+        color(d);
+      }
+    }
+  }
+
+  findSpecAr(nn) {
+    for (let j = 0; j < LINES; j++) {
+      for (let i = 0; i < LINES; i++) {
+        const a = 0 + i + j;
+        const b = 4 + i - j;
+        if (this.arr[a][b].num === nn) return this.arr[a][b];
+        if (this.arr[a][b - 1].num === nn) return this.arr[a][b - 1];
+      }
+    }
+    return null;
+  
+  }
+
 
 }
 
-const cells = new Cells();
+/////////
+/*
+
+Сделать класс Cell
+*/////////////
+const drawing = new Draw();
 
 const zone = [];
 const cell =  { height: 60, width: 60 };
 const LINES = 4;
 const USABLE_CELL = 32;
-let specArr = [];
+let arr = [];
+let spec =  new ChekArr(arr);
 let click = false;
 let relativeX;
 let relativeY;
@@ -105,30 +190,7 @@ const  findZones = () => {
   }
 };
 
-const workWithSpecArr = () => {
-  let numCell = 1;
-  const specArrHeight = 7;
-  const specArrWidth = 8;
-  for (let i = 0; i < specArrHeight; i++) {
-    specArr[i] = [];
-    for (let j = 0; j < specArrWidth; j++) {
-      specArr[i][j] = {};
-    }
-  }
 
-  const side = cell.height;
-  for (let j = 0; j < 4; j++) {
-    for (let i = 0; i < 4; i++) {
-      const a = 0 + i + j;
-      const b = 4 + i - j;
-      specArr[a ][b] = { num: numCell, choose: false, cheker: 'null',
-        x: side + 2 * side * i, y: 0 +  2 * side * j, a, b };
-      specArr[a ][b - 1] = { num: numCell + 4, choose: false, cheker: 'null',
-        x: 0 + 2 * side * i, y: side +  2 * side * j, a, b: b - 1 };
-      numCell++;
-    } numCell += 4;
-  }
-};
 
 const firstFilling = () => { //
   const chekInLine = 4;
@@ -142,8 +204,8 @@ const firstFilling = () => { //
     for (let i = 0; i < chekInLine; i++) {
       const a = 0 + i + j;
       const b = 4 + i - j;
-      fillCell(specArr, a, b, 'b', 0, 12);
-      fillCell(specArr, a, b, 'w', 21, 32);
+      fillCell(spec.arr, a, b, 'b', 0, 12);
+      fillCell(spec.arr, a, b, 'w', 21, 32);
     }
   }
 };
@@ -151,8 +213,8 @@ const firstFilling = () => { //
 const drawDesk = () => {
   for (let xCell = 0; xCell < canvas.width; xCell += 2 * cell.width) {
     for (let yCell = 0; yCell < canvas.height; yCell += 2 * cell.height) {
-      cells.drawDeskCells(xCell, yCell);
-      cells.drawDeskCells(xCell + cell.height, yCell + cell.width);
+      drawing.drawDeskCells(xCell, yCell);
+      drawing.drawDeskCells(xCell + cell.height, yCell + cell.width);
     }
   }
 };
@@ -194,29 +256,7 @@ const druwTurn = flag => {
 
 // we use desk cells to paint desk
 
-const  drawChekers = () => {
-  const color = c => {
-    const halfS = cell.width / 2;
-    switch (c.cheker) {
-    case 'w': return cells.drawcheker(c.x + halfS, c.y + halfS, 'w');
-    case 'b': return cells.drawcheker(c.x + halfS, c.y + halfS, 'b');
-    case 'wCr': return cells.drawchekerCr(c.x + halfS, c.y + halfS, 'w');
-    case 'bCr': return cells.drawchekerCr(c.x + halfS, c.y + halfS, 'b');
 
-    }
-  };
-
-  for (let j = 0; j < 4; j++) {
-    for (let i = 0; i < 4; i++) {
-      const a = 0 + i + j;
-      const b = 4 + i - j;
-      const c = specArr[a][b];
-      const d = specArr[a][b - 1];
-      color(c);
-      color(d);
-    }
-  }
-};
 
 // find zones coordinates
 
@@ -238,52 +278,41 @@ function findChoosedCell() {
 
 const chekOnCrown = () => {
   for (let j = 1; j <= LINES; j++) {
-    if (findSpecAr(j + USABLE_CELL - LINES).cheker === 'b')
-      findSpecAr(j + USABLE_CELL - LINES).cheker = 'bCr';
-    if (findSpecAr(j).cheker === 'w')
-      findSpecAr(j).cheker = 'wCr';
+    if (spec.findSpecAr(j + USABLE_CELL - LINES).cheker === 'b')
+      spec.findSpecAr(j + USABLE_CELL - LINES).cheker = 'bCr';
+    if (spec.findSpecAr(j).cheker === 'w')
+      spec.findSpecAr(j).cheker = 'wCr';
   }
 };
 
-function findSpecAr(nn) {
-  for (let j = 0; j < LINES; j++) {
-    for (let i = 0; i < LINES; i++) {
-      const a = 0 + i + j;
-      const b = 4 + i - j;
-      if (specArr[a][b].num === nn) return specArr[a][b];
-      if (specArr[a][b - 1].num === nn) return specArr[a][b - 1];
-    }
-  }
-  return null;
 
-}
 
 const move = (now, pre, you, enemy) => {
 
   const inside = (e, d, now, pre) => {
     if (e && (e === d)) {
       ruleToKill(now, pre).cheker = 'null';
-      findSpecAr(now).cheker = you;
-      findSpecAr(pre).cheker = 'null';
+      spec.findSpecAr(now).cheker = you;
+      spec.findSpecAr(pre).cheker = 'null';
       if (ruleOpportTo(enemy)) flag++;
     }
   };
 
   const c = ruleForStep(now, pre, you);
-  const a = findSpecAr(now).cheker;
-  const b = findSpecAr(pre).cheker;
+  const a = spec.findSpecAr(now).cheker;
+  const b = spec.findSpecAr(pre).cheker;
   const d = ruleToKill(now, pre);
   const e = ruleOpportTo(enemy);
   const f = ruleOpportToCr(you);
   if (b === you && a === 'null' && c && !e && !f) {
     if (c) {
-      findSpecAr(now).cheker = you;
-      findSpecAr(pre).cheker = 'null';
+      spec.findSpecAr(now).cheker = you;
+      spec.findSpecAr(pre).cheker = 'null';
     }
     if (d) {
       ruleToKill(now, pre).cheker = 'null';
-      findSpecAr(now).cheker = you;
-      findSpecAr(pre).cheker = 'null';
+      spec.findSpecAr(now).cheker = you;
+      spec.findSpecAr(pre).cheker = 'null';
     }
   }
 
@@ -291,21 +320,19 @@ const move = (now, pre, you, enemy) => {
 
 };
 
-
-
 const moveCr = (now, pre, you, enemy, youCr) => {
 
   const inside = (now, pre, e, d) => {
     if (e && (e === d)) {
       ruleToKillCr(now, pre, 'b').cheker = 'null';
-      findSpecAr(now).cheker = 'bCr';
-      findSpecAr(pre).cheker = 'null';
+      spec.findSpecAr(now).cheker = 'bCr';
+      spec.findSpecAr(pre).cheker = 'null';
       if (ruleOpportToCr('b')) flag--;
     }
   };
 
-  const a = findSpecAr(now).cheker;
-  const b = findSpecAr(pre).cheker;
+  const a = spec.findSpecAr(now).cheker;
+  const b = spec.findSpecAr(pre).cheker;
   const c = ruleForStep(now, pre, 'Cr');
   const d = ruleToKillCr(now, pre, you);
   const e = ruleOpportToCr(you);
@@ -313,13 +340,13 @@ const moveCr = (now, pre, you, enemy, youCr) => {
 
   if (a === 'null' && b === youCr && !e && !f) {
     if (c) {
-      findSpecAr(now).cheker = youCr;
-      findSpecAr(pre).cheker = 'null';
+      spec.findSpecAr(now).cheker = youCr;
+      spec.findSpecAr(pre).cheker = 'null';
     }
     if (d) {
       ruleToKillCr(now, pre, you).cheker = 'null';
-      findSpecAr(now).cheker = youCr;
-      findSpecAr(pre).cheker = 'null';
+      spec.findSpecAr(now).cheker = youCr;
+      spec.findSpecAr(pre).cheker = 'null';
     }
   }
   inside(now, pre, e, d);
@@ -327,10 +354,10 @@ const moveCr = (now, pre, you, enemy, youCr) => {
 
 // similar move
 function ruleForStep(now, pre, color) {
-  const a1 = findSpecAr(now).a;
-  const b1 = findSpecAr(now).b;
-  const a2 = findSpecAr(pre).a;
-  const b2 = findSpecAr(pre).b;
+  const a1 = spec.findSpecAr(now).a;
+  const b1 = spec.findSpecAr(now).b;
+  const a2 = spec.findSpecAr(pre).a;
+  const b2 = spec.findSpecAr(pre).b;
   const c = (b1 - b2);
   const d = (a1 - a2);
   if (color === 'w') {
@@ -357,11 +384,11 @@ function ruleForStep(now, pre, color) {
 
 function ruleToKill(now, pre) {
 
-  const a1 = findSpecAr(now).a;
-  const b1 = findSpecAr(now).b;
-  const a2 = findSpecAr(pre).a;
-  const b2 = findSpecAr(pre).b;
-  const sa = specArr;
+  const a1 = spec.findSpecAr(now).a;
+  const b1 = spec.findSpecAr(now).b;
+  const a2 = spec.findSpecAr(pre).a;
+  const b2 = spec.findSpecAr(pre).b;
+  const sa = spec.arr;
   const a = (a1 - a2);
   const b = (b1 - b2);
 
@@ -369,27 +396,27 @@ function ruleToKill(now, pre) {
   if (((a2 - a1) === 2) && (b === 0)) {
     const sa1 = sa[a2 - 1][b1].cheker;
     if (sa1 === 'b' || sa1 === 'bCr') {
-      return specArr[a2 - 1][b1];
+      return spec.arr[a2 - 1][b1];
     }
   }
 
   if ((a === 0) && (b === 2)) {
     const sa2 = sa[a1][b2 + 1].cheker;
     if (sa2 === 'b' || sa2 === 'bCr') {
-      return specArr[a1][b2 + 1];
+      return spec.arr[a1][b2 + 1];
     }
   }
 
   if ((a === 2) && (b === 0)) {
     const sa3 = sa[a2 + 1][b1].cheker;
     if (sa3 === 'w' || sa3 === 'wCr') {
-      return specArr[a2 + 1][b1];
+      return spec.arr[a2 + 1][b1];
     }
   }
   if ((a === 0) && ((b2 - b1) === 2)) {
     const sa4 = sa[a1][b2 - 1].cheker;
     if (sa4 === 'w' || sa4 === 'wCr') {
-      return specArr[a1][b2 - 1];
+      return spec.arr[a1][b2 - 1];
     }
   }
   return false;
@@ -398,19 +425,19 @@ function ruleToKill(now, pre) {
 
 function ruleToKillCr(now, pre, color) {
 
-  const lockBull = (letter, specArr, col) => {
-    if ((letter !== specArr) && (letter !== 'null') && (letter !== col))
+  const lockBull = (letter, spec, col) => {
+    if ((letter !== spec) && (letter !== 'null') && (letter !== col))
       return true;
     return false;
   };
 
   let a, b, c, d;
-  const a1 = findSpecAr(now).a;
-  const b1 = findSpecAr(now).b;
-  const a2 = findSpecAr(pre).a;
-  const b2 = findSpecAr(pre).b;
-  const sa = specArr;
-  const sam = specArr[a2][b2].cheker;
+  const a1 = spec.findSpecAr(now).a;
+  const b1 = spec.findSpecAr(now).b;
+  const a2 = spec.findSpecAr(pre).a;
+  const b2 = spec.findSpecAr(pre).b;
+  const sa = spec.arr;
+  const sam = spec.arr[a2][b2].cheker;
 
   if ((a2 - a1) === 2) a = sa[a2 - 1][b1].cheker;
   if (((a2 - a1) === 2) && ((b1 - b2) === 0) && lockBull(a, sam, color)) {
@@ -436,8 +463,8 @@ function ruleOpportTo(anctol) {
   let col;
 
   const locBool = (col, colCr, anctol, a, b, a2, b2, sam) => {
-    const firstCell = specArr[a][b].cheker;
-    const secondCell = specArr[a2][b2].cheker;
+    const firstCell = spec.arr[a][b].cheker;
+    const secondCell = spec.arr[a2][b2].cheker;
     const e = (firstCell ===  colCr || firstCell === col);
     if (e && secondCell === 'null' && sam === anctol)
       return true;
@@ -452,21 +479,21 @@ function ruleOpportTo(anctol) {
       const a = 0 + i + j;
       const b = 4 + i - j;
 
-      if (specArr[a][b].cheker === col) {
+      if (spec.arr[a][b].cheker === col) {
         a1 = a;
         b1 = b;
-        const sam = specArr[a1][b1].cheker;
+        const sam = spec.arr[a1][b1].cheker;
         if (anctol === 'b') {
           if (a1 - 2 >= 0)   {
             const aa = locBool('b', 'bCr', 'w', a1 - 1, b1, a1 - 2, b1, sam);
 
-            if (aa)  return specArr[a1 - 1][b1];
+            if (aa)  return spec.arr[a1 - 1][b1];
           }
 
           if (b1 + 2 <= 7)  {
             const bb = locBool('b', 'bCr', 'w', a1, b1 + 1, a1, b1 + 2, sam);
 
-            if (bb) return specArr[a1][b1 + 1];
+            if (bb) return spec.arr[a1][b1 + 1];
           }
         }
         if (anctol === 'w') {
@@ -474,30 +501,30 @@ function ruleOpportTo(anctol) {
           if (a1 + 2 <= 6)  {
             const dd = locBool('w', 'wCr', 'b', a1 + 1, b1, a1 + 2, b1, sam);
 
-            if (dd)  return specArr[a1 + 1][b1];
+            if (dd)  return spec.arr[a1 + 1][b1];
 
           }
           if (b1 - 2 >= 0) {
             const cc = locBool('w', 'wCr', 'b', a1, b1 - 1, a1, b1 - 2, sam);
-            if (cc) return specArr[a1][b1 - 1];
+            if (cc) return spec.arr[a1][b1 - 1];
           }
         }
       }
-      if (specArr[a][b - 1].cheker === col) {
+      if (spec.arr[a][b - 1].cheker === col) {
         a1 = a;
         b1 = b - 1;
-        const sam = specArr[a1][b1].cheker;
+        const sam = spec.arr[a1][b1].cheker;
         if (anctol === 'b') {
           if (a1 - 2 >= 0)   {
             const aa = locBool('b', 'bCr', 'w', a1 - 1, b1, a1 - 2, b1, sam);
 
-            if (aa)  return specArr[a1 - 1][b1];
+            if (aa)  return spec.arr[a1 - 1][b1];
           }
 
           if (b1 + 2 <= 7)  {
             const bb = locBool('b', 'bCr', 'w', a1, b1 + 1, a1, b1 + 2, sam);
 
-            if (bb) return specArr[a1][b1 + 1];
+            if (bb) return spec.arr[a1][b1 + 1];
           }
         }
         if (anctol === 'w') {
@@ -505,12 +532,12 @@ function ruleOpportTo(anctol) {
           if (a1 + 2 <= 6)  {
             const dd = locBool('w', 'wCr', 'b', a1 + 1, b1, a1 + 2, b1, sam);
 
-            if (dd)  return specArr[a1 + 1][b1];
+            if (dd)  return spec.arr[a1 + 1][b1];
 
           }
           if (b1 - 2 >= 0) {
             const cc = locBool('w', 'wCr', 'b', a1, b1 - 1, a1, b1 - 2, sam);
-            if (cc) return specArr[a1][b1 - 1];
+            if (cc) return spec.arr[a1][b1 - 1];
           }
         }
       }
@@ -524,8 +551,8 @@ function ruleOpportToCr(col) {
   let a1,  b1, Cr;
 
   const locBool = (col, colCr, a, b, a2, b2, sam) => {
-    const firstCell = specArr[a][b].cheker;
-    const secondCell = specArr[a2][b2].cheker;
+    const firstCell = spec.arr[a][b].cheker;
+    const secondCell = spec.arr[a2][b2].cheker;
     const e = (firstCell !==  sam && firstCell !== col);
     if (e && secondCell === 'null' && firstCell !== 'null')
       return true;
@@ -539,56 +566,56 @@ function ruleOpportToCr(col) {
       const b = 4 + i - j;
       if (col === 'w') Cr = 'wCr';
       if (col === 'b') Cr = 'bCr';
-      if (specArr[a][b].cheker === Cr) {
+      if (spec.arr[a][b].cheker === Cr) {
         a1 = a;
         b1 = b;
-        const sam = specArr[a1][b1].cheker;
+        const sam = spec.arr[a1][b1].cheker;
         if (a1 - 2 >= 0) {
           const aa = locBool('b', 'bCr', a1 - 1, b1, a1 - 2, b1, sam);
-          if (aa)  return specArr[a1 - 1][b1];
+          if (aa)  return spec.arr[a1 - 1][b1];
         }
 
         if (b1 + 2 <= 7)  {
           const bb = locBool('b', 'bCr', a1, b1 + 1, a1, b1 + 2, sam);
 
-          if (bb) return specArr[a1][b1 + 1];
+          if (bb) return spec.arr[a1][b1 + 1];
         }
         if (a1 + 2 <= 6)  {
           const dd = locBool('w', 'wCr', a1 + 1, b1, a1 + 2, b1, sam);
 
-          if (dd)  return specArr[a1 + 1][b1];
+          if (dd)  return spec.arr[a1 + 1][b1];
 
         }
         if (b1 - 2 >= 0) {
           const cc = locBool('w', 'wCr', a1, b1 - 1, a1, b1 - 2, sam);
-          if (cc) return specArr[a1][b1 - 1];
+          if (cc) return spec.arr[a1][b1 - 1];
         }
       }
-      if (specArr[a][b - 1].cheker === Cr) {
+      if (spec.arr[a][b - 1].cheker === Cr) {
         a1 = a;
         b1 = b - 1;
 
-        const sam = specArr[a1][b1].cheker;
+        const sam = spec.arr[a1][b1].cheker;
         if (a1 - 2 >= 0)   {
           const aa = locBool('b', 'bCr', a1 - 1, b1, a1 - 2, b1, sam);
 
-          if (aa)  return specArr[a1 - 1][b1];
+          if (aa)  return spec.arr[a1 - 1][b1];
         }
 
         if (b1 + 2 <= 7)  {
           const bb = locBool('b', 'bCr', a1, b1 + 1, a1, b1 + 2, sam);
 
-          if (bb) return specArr[a1][b1 + 1];
+          if (bb) return spec.arr[a1][b1 + 1];
         }
         if (a1 + 2 <= 6)  {
           const dd = locBool('w', 'wCr', a1 + 1, b1, a1 + 2, b1, sam);
 
-          if (dd)  return specArr[a1 + 1][b1];
+          if (dd)  return spec.arr[a1 + 1][b1];
 
         }
         if (b1 - 2 >= 0) {
           const cc = locBool('w', 'wCr', a1, b1 - 1, a1, b1 - 2, sam);
-          if (cc) return specArr[a1][b1 - 1];
+          if (cc) return spec.arr[a1][b1 - 1];
         }
       }
     }
@@ -605,45 +632,45 @@ function draw() {
 
   if (!flag) {
     if (ruleOpportToCr('b')) {
-      cells.drawMust(ruleOpportToCr('b').x, ruleOpportToCr('b').y);
+      drawing.drawMust(ruleOpportToCr('b').x, ruleOpportToCr('b').y);
     }
     if (ruleOpportTo('w')) {
-      cells.drawMust(ruleOpportTo('w').x, ruleOpportTo('w').y);
+      drawing.drawMust(ruleOpportTo('w').x, ruleOpportTo('w').y);
     }
 
   }
   if (flag) {
     if (ruleOpportToCr('w')) {
-      cells.drawMust(ruleOpportToCr('w').x, ruleOpportToCr('w').y);
+      drawing.drawMust(ruleOpportToCr('w').x, ruleOpportToCr('w').y);
     }
     if (ruleOpportTo('b')) {
 
-      cells.drawMust(ruleOpportTo('b').x, ruleOpportTo('b').y);
+      drawing.drawMust(ruleOpportTo('b').x, ruleOpportTo('b').y);
     }
   }
-  drawChekers();
+  spec.drawChekers();
 
   if (click) {
-    if (findSpecAr(choosenCellPrev) && flag) {
-      const cBool = findSpecAr(choosenCellPrev).cheker === 'w';
-      const aBool = (cBool || findSpecAr(choosenCellPrev).cheker === 'wCr');
+    if (spec.findSpecAr(choosenCellPrev) && flag) {
+      const cBool = spec.findSpecAr(choosenCellPrev).cheker === 'w';
+      const aBool = (cBool || spec.findSpecAr(choosenCellPrev).cheker === 'wCr');
       if (aBool) {
         moveCr(choosenCellNow, choosenCellPrev, 'w', 'b', 'wCr');
         move(choosenCellNow, choosenCellPrev, 'w', 'b');
-        if (findSpecAr(choosenCellPrev).cheker === 'null') {
-          flag--;       socket.send(JSON.stringify(specArr));
+        if (spec.findSpecAr(choosenCellPrev).cheker === 'null') {
+          flag--;       socket.send(JSON.stringify(spec));
 
         }
       }
     }
-    if (findSpecAr(choosenCellPrev)  && !flag) {
-      const dBool = findSpecAr(choosenCellPrev).cheker === 'b';
-      const bBool = (dBool || findSpecAr(choosenCellPrev).cheker === 'bCr');
+    if (spec.findSpecAr(choosenCellPrev)  && !flag) {
+      const dBool = spec.findSpecAr(choosenCellPrev).cheker === 'b';
+      const bBool = (dBool || spec.findSpecAr(choosenCellPrev).cheker === 'bCr');
       if (bBool) {
         moveCr(choosenCellNow, choosenCellPrev, 'b', 'w', 'bCr');
         move(choosenCellNow, choosenCellPrev, 'b', 'w');
-        if (findSpecAr(choosenCellPrev).cheker === 'null') {
-          flag++;      socket.send(JSON.stringify(specArr));
+        if (spec.findSpecAr(choosenCellPrev).cheker === 'null') {
+          flag++;      socket.send(JSON.stringify(spec));
 
         }
       }
@@ -657,7 +684,7 @@ function draw() {
 
 const funcForStart = () => {
   findZones();
-  workWithSpecArr();
+  spec.workWithSpecArr();
   firstFilling();
   draw();
 };
@@ -681,7 +708,7 @@ socket.onclose = () => {
 };
 
 socket.onmessage = event => {
-  specArr =  JSON.parse(event.data);
+  spec.arr =  JSON.parse(event.data);
 
   if (flag) flag--;
   else flag++;
