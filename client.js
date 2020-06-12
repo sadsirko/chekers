@@ -1,12 +1,10 @@
 
 'use strict';
 
-const socket = new WebSocket('ws://127.0.0.1:8080/');
 
 const  canvas = document.getElementById('myCanvas');
 const turncanvas = document.getElementById('secCanvas');
-const ctx = canvas.getContext('2d');
-const ctxturn = turncanvas.getContext('2d');
+
 
 canvas.addEventListener('mousemove', mouseMoveHandlerY, false);
 canvas.addEventListener('mousemove', mouseMoveHandlerX, false);
@@ -62,20 +60,42 @@ class Draw {
   }
 
   drawchekerCr(x, y, color) {
-    ctx.beginPath();
-    ctx.arc(x, y, this.CHEKER_R, 0, Math.PI * 2, false);
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, this.CHEKER_R, 0, Math.PI * 2, false);
     if (color === 'b')
-      ctx.fillStyle = 'black';
+      this.ctx.fillStyle = 'black';
     else
-      ctx.fillStyle = 'white';
-    ctx.fill();
-    ctx.closePath();
-    ctx.beginPath();
-    ctx.arc(x, y, this.CHEKER_R - 5, 0, Math.PI * 2, false);
-    ctx.fillStyle = '#0774a6';
-    ctx.fill();
-    ctx.closePath();
+      this.ctx.fillStyle = 'white';
+    this.ctx.fill();
+    this.ctx.closePath();
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, this.CHEKER_R - 5, 0, Math.PI * 2, false);
+    this.ctx.fillStyle = '#0774a6';
+    this.ctx.fill();
+    this.ctx.closePath();
   }
+
+  drawDesk() {
+    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let xCell = 0; xCell < canvas.width; xCell += 2 * cell.width) {
+      for (let yCell = 0; yCell < canvas.height; yCell += 2 * cell.height) {
+        this.drawDeskCells(xCell, yCell);
+        this.drawDeskCells(xCell + cell.height, yCell + cell.width);
+      }
+    }
+  };
+
+druwTurn(flag) {
+  const pos = turncanvas.width / 2;
+  
+  this.ctxturn.clearRect(0, 0, 80, 80);
+  this.ctxturn.beginPath();
+  this.ctxturn.arc(pos, pos, pos - 5, 0, Math.PI * 2, false);
+  if (!flag) this.ctxturn.fillStyle = 'black';
+  else  this.ctxturn.fillStyle = 'white';
+  this.ctxturn.fill();
+  this.ctxturn.closePath();
+};
 }
 
 class Cell{
@@ -92,6 +112,7 @@ class Cell{
 class ChekArr{
   constructor(arr){
     this.arr = arr;
+    this.zone =[];
   }
 
   workWithSpecArr(){
@@ -152,12 +173,58 @@ class ChekArr{
       }
     }
     return null;
-  
   }
 
+  findZones(){
+    let num = 1;
+    const side = cell.height;
+    for (let i  = 0; i < 8; i++) {
+      for (let j  = 0; j < 4; j++) {
+        this.zone[num] = { };
+        if (i % 2 === 0) this.zone[num] = { x: side + 2 * side * j, y: i * side  };
+        else this.zone[num] = { x:  2 * side * j, y: i * side  };
+        num++;
+      }
+    }
+  };
+
+  findChoosedCell(){
+    let buffer;
+    for (let i = 1; i <= USABLE_CELL; i++) {
+      const a = relativeX > this.zone[i].x;
+      const b = relativeX < this.zone[i].x + cell.width;
+      const c = relativeY > this.zone[i].y;
+      const d = relativeY < this.zone[i].y + cell.width;
+      if (a && b & c && d && i !== choosenCellNow) {
+        choosenCellPrev = choosenCellNow;
+        choosenCellNow = i;
+      }
+    }
+    if (choosenCellNow !== buffer) buffer = choosenCellNow;
+  }
+
+  firstFilling(){ 
+    const chekInLine = 4;
+    const fillCell = (arr, a, b, col, pos1, pos2) => {
+      const d = arr[a][b];
+      const e = arr[a][b - 1];
+      if (d.num <= pos2 && d.num >= pos1) d.cheker = col;
+      if (e.num <= pos2 && e.num >= pos1) e.cheker = col;
+    };
+    for (let j = 0; j < chekInLine; j++) {
+      for (let i = 0; i < chekInLine; i++) {
+        const a = 0 + i + j;
+        const b = 4 + i - j;
+        fillCell(this.arr, a, b, 'b', 0, 12);
+        fillCell(this.arr, a, b, 'w', 21, 32);
+      }
+    }
+  };
 
 }
+class Rules{
 
+}
 /////////
 /*
 
@@ -165,7 +232,6 @@ class ChekArr{
 */////////////
 const drawing = new Draw();
 
-const zone = [];
 const cell =  { height: 60, width: 60 };
 const LINES = 4;
 const USABLE_CELL = 32;
@@ -177,60 +243,18 @@ let relativeY;
 let choosenCellNow = 0, choosenCellPrev = 19;
 let flag = 1;
 
-const  findZones = () => {
-  let num = 1;
-  const side = cell.height;
-  for (let i  = 0; i < 8; i++) {
-    for (let j  = 0; j < 4; j++) {
-      zone[num] = { };
-      if (i % 2 === 0) zone[num] = { x: side + 2 * side * j, y: i * side  };
-      else zone[num] = { x:  2 * side * j, y: i * side  };
-      num++;
-    }
-  }
-};
-
-
-
-const firstFilling = () => { //
-  const chekInLine = 4;
-  const fillCell = (arr, a, b, col, pos1, pos2) => {
-    const d = arr[a][b];
-    const e = arr[a][b - 1];
-    if (d.num <= pos2 && d.num >= pos1) d.cheker = col;
-    if (e.num <= pos2 && e.num >= pos1) e.cheker = col;
-  };
-  for (let j = 0; j < chekInLine; j++) {
-    for (let i = 0; i < chekInLine; i++) {
-      const a = 0 + i + j;
-      const b = 4 + i - j;
-      fillCell(spec.arr, a, b, 'b', 0, 12);
-      fillCell(spec.arr, a, b, 'w', 21, 32);
-    }
-  }
-};
-
-const drawDesk = () => {
-  for (let xCell = 0; xCell < canvas.width; xCell += 2 * cell.width) {
-    for (let yCell = 0; yCell < canvas.height; yCell += 2 * cell.height) {
-      drawing.drawDeskCells(xCell, yCell);
-      drawing.drawDeskCells(xCell + cell.height, yCell + cell.width);
-    }
-  }
-};
-
 function mousedown(e) {
   click = true;
   relativeY = mouseMoveHandlerY(e);
   relativeX = mouseMoveHandlerX(e);
 
-  findChoosedCell();
-  draw();
+  spec.findChoosedCell();
+  everyStep();
 }
 
 function mouseup() {
   click = false;
-  draw();
+  everyStep();
 }
 
 function mouseMoveHandlerY(e) {
@@ -244,15 +268,6 @@ function mouseMoveHandlerX(e) {
 
 
 //draw cheker
-const druwTurn = flag => {
-  const pos = turncanvas.width / 2;
-  ctxturn.beginPath();
-  ctxturn.arc(pos, pos, pos - 5, 0, Math.PI * 2, false);
-  if (!flag) ctxturn.fillStyle = 'black';
-  else  ctxturn.fillStyle = 'white';
-  ctxturn.fill();
-  ctxturn.closePath();
-};
 
 // we use desk cells to paint desk
 
@@ -260,21 +275,7 @@ const druwTurn = flag => {
 
 // find zones coordinates
 
-function findChoosedCell() {
-  let buffer;
 
-  for (let i = 1; i <= USABLE_CELL; i++) {
-    const a = relativeX > zone[i].x;
-    const b = relativeX < zone[i].x + cell.width;
-    const c = relativeY > zone[i].y;
-    const d = relativeY < zone[i].y + cell.width;
-    if (a && b & c && d && i !== choosenCellNow) {
-      choosenCellPrev = choosenCellNow;
-      choosenCellNow = i;
-    }
-  }
-  if (choosenCellNow !== buffer) buffer = choosenCellNow;
-}
 
 const chekOnCrown = () => {
   for (let j = 1; j <= LINES; j++) {
@@ -624,11 +625,9 @@ function ruleOpportToCr(col) {
 
 }
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctxturn.clearRect(0, 0, 80, 80);
-  drawDesk();
-  druwTurn(flag);
+function everyStep() {
+  drawing.drawDesk();
+  drawing.druwTurn(flag);
 
   if (!flag) {
     if (ruleOpportToCr('b')) {
@@ -639,7 +638,7 @@ function draw() {
     }
 
   }
-  if (flag) {
+  else{
     if (ruleOpportToCr('w')) {
       drawing.drawMust(ruleOpportToCr('w').x, ruleOpportToCr('w').y);
     }
@@ -683,15 +682,15 @@ function draw() {
 
 
 const funcForStart = () => {
-  findZones();
+  spec.findZones();
   spec.workWithSpecArr();
-  firstFilling();
-  draw();
+  spec.firstFilling();
+  everyStep();
 };
 
-
-
 funcForStart();
+
+const socket = new WebSocket('ws://127.0.0.1:8080/');
 
 socket.onopen = () => {
 
