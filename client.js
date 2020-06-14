@@ -3,16 +3,9 @@
 const  canvas = document.getElementById('myCanvas');
 const turncanvas = document.getElementById('secCanvas');
 
-canvas.addEventListener('mousemove', mouseMoveHandlerY, false);
-canvas.addEventListener('mousemove', mouseMoveHandlerX, false);
-canvas.addEventListener('mousedown', mousedown, false);
-canvas.addEventListener('mouseup', mouseup, false);
 
-const arr = [];
-let click = false;
-let relativeX;
-let relativeY;
-let choosenCellNow = 0, choosenCellPrev = 19;
+
+
 let flag = 1;
 
 
@@ -113,13 +106,16 @@ class Cell {
 }
 
 class ChekArr {
-  constructor(arr, drawMeth) {
+  constructor(arr, drawMeth,listener) {
     this.arr = arr;
     this.zone = [];
     this.drawing = drawMeth;
     this.cell = { h: 60, w: 60 };
     this.LINES = 4;
     this.USABLE_CELL = 32;
+    this.listen = listener;
+    this.choosenCellNow = 0;
+    this.choosenCellPrev = 19;
   }
 
   workWithSpecArr() {
@@ -197,19 +193,20 @@ class ChekArr {
     }
   }
 
-  findChoosedCell() {
+  findChoosedCell(relativeX, relativeY) {
     let buffer;
     for (let i = 1; i <= this.USABLE_CELL; i++) {
       const a = relativeX > this.zone[i].x;
       const b = relativeX < this.zone[i].x + this.cell.w;
       const c = relativeY > this.zone[i].y;
       const d = relativeY < this.zone[i].y + this.cell.w;
-      if (a && b & c && d && i !== choosenCellNow) {
-        choosenCellPrev = choosenCellNow;
-        choosenCellNow = i;
+      if (a && b & c && d && i !== this.choosenCellNow) {
+        this.choosenCellPrev = this.choosenCellNow;
+        this.choosenCellNow = i;
       }
     }
-    if (choosenCellNow !== buffer) buffer = choosenCellNow;
+    if (this.choosenCellNow !== buffer) buffer = this.choosenCellNow;
+    return {now : this.choosenCellNow, pre : this.choosenCellPrev };
   }
 
   firstFilling() {
@@ -243,7 +240,7 @@ class ChekArr {
 class Rules {
   constructor(desk, draw) {
     this.spec = desk;
-    this.spec = draw;
+    this.drawing = draw;
   }
 
 
@@ -585,36 +582,37 @@ class Move {
   }
 }
 
+class Listener{
+  constructor() {
+    this.relativeY;
+    this.relativeX;
+    this.now;
+    this.pre;
+  }
+   mousedown(e) {    
+    this.relativeY = e.clientY;
+    this.relativeX =  e.clientX;
+    this.now = spec.findChoosedCell(this.relativeX, this.relativeY).now;
+    this.pre = spec.findChoosedCell(this.relativeX, this.relativeY).pre;
+    everyStep(drawing,rule,spec,mover, this.now, this.pre);
+  }
+  
+   mouseup() {
+
+    everyStep(drawing,rule,spec,mover, this.now, this.pre);
+   }
+  }
+
+const arr = [];
 const drawing = new Draw();
-const spec =  new ChekArr(arr, drawing);
+const listen = new Listener();
+const spec =  new ChekArr(arr, drawing, listen);
 const rule = new Rules(spec, drawing);
 const mover = new Move(spec, drawing, rule);
 
-function mousedown(e) {
-  click = true;
-  relativeY = mouseMoveHandlerY(e);
-  relativeX = mouseMoveHandlerX(e);
-
-  spec.findChoosedCell();
-  everyStep();
-}
-
-function mouseup() {
-  click = false;
-  everyStep();
-}
-
-function mouseMoveHandlerY(e) {
-  return e.clientY;
-}
-
-function mouseMoveHandlerX(e) {
-  return e.clientX;
-}
-
 const socket = new WebSocket('ws://127.0.0.1:8080/');
 
-function everyStep() {
+function everyStep(drawing,rule,spec,mover, choosenCellNow, choosenCellPrev) {
   drawing.drawDesk();
   drawing.druwTurn(flag);
 
@@ -637,7 +635,6 @@ function everyStep() {
   }
   spec.drawChekers();
 
-  if (click) {
     if (spec.findSpecAr(choosenCellPrev) && flag) {
       const cBool = spec.findSpecAr(choosenCellPrev).cheker === 'w';
       const aBool = spec.findSpecAr(choosenCellPrev).cheker === 'wCr';
@@ -645,7 +642,7 @@ function everyStep() {
         mover.moveCr(choosenCellNow, choosenCellPrev, 'w', 'b', 'wCr');
         mover.move(choosenCellNow, choosenCellPrev, 'w', 'b');
         if (spec.findSpecAr(choosenCellPrev).cheker === 'null') {
-          flag--;       socket.send(JSON.stringify(spec));
+          flag--;       socket.send(JSON.stringify(spec.arr));
 
         }
       }
@@ -657,25 +654,15 @@ function everyStep() {
         mover.moveCr(choosenCellNow, choosenCellPrev, 'b', 'w', 'bCr');
         mover.move(choosenCellNow, choosenCellPrev, 'b', 'w');
         if (spec.findSpecAr(choosenCellPrev).cheker === 'null') {
-          flag++;      socket.send(JSON.stringify(spec));
+          flag++;      socket.send(JSON.stringify(spec.arr));
 
         }
       }
 
-    }
+    
     spec.chekOnCrown();
   }
-
 }
-
-const funcForStart = () => {
-  spec.findZones();
-  spec.workWithSpecArr();
-  spec.firstFilling();
-  everyStep();
-};
-
-funcForStart();
 
 socket.onopen = () => {
   console.log('connected');
@@ -694,8 +681,8 @@ socket.onmessage = event => {
 
   if (flag) flag--;
   else flag++;
-  everyStep();
+  everyStep(drawing,rule,spec,mover);
 };
 
-
-
+canvas.addEventListener('mousedown', listen.mousedown, false);
+canvas.addEventListener('mouseup', listen.mouseup, false);
