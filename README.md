@@ -1,18 +1,11 @@
 # chekers
-Англійські шахи для двох гравців
+English chekers for 2 players
+## help
+sadsirko@gmail.com
+## usage
+run server.js with node , or use host
+visit site , where you placed this project (add link in server.js and client.js)
+## license
+Copyright (c) 2020 sadsirko
+This software is MIT licensed.
 
-Є можливість запустити з сервером -клієнтом для двох гравців в різних вікнах
-
-Є можливість запустити лише в браузері local_cheker/
-
-Графічна частина реалізована на canvas
-
-Використовується переважно js 
-
-За основу ігрового поля взяті вкладені масиви 
-
-Користувач взаємодіє з грою задопомогою мишки , використовуєтсья '.addEventListener'; 
-
-Програмний код використовує: EventEmitter, 'websocket';
-
-Робоча пошта: sadsirko@gmail,com
