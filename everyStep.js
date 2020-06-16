@@ -37,16 +37,7 @@ function everyStep(drawing, rule, spec, mover, choosCellNow, choosCellPrev) {
   makeMove(!spec.flag, 'b', 'bCr', 'w', '+');
   spec.drawChekers();
 
-  if (spec.findSpecAr(choosCellPrev)  && !spec.flag) {
-    const dBool = spec.findSpecAr(choosCellPrev).cheker === 'b';
-    const bBool = spec.findSpecAr(choosCellPrev).cheker === 'bCr';
-    if (bBool || dBool) {
-      mover.moveCr(choosCellNow, choosCellPrev, 'b', 'w', 'bCr', spec.flag);
-      mover.move(choosCellNow, choosCellPrev, 'b', 'w', spec.flag);
-      if (spec.findSpecAr(choosCellPrev).cheker === 'null') {
-        spec.changeFlag('+');      socket.send(JSON.stringify(spec.arr));
-      }
-    }
+
     spec.chekOnCrown();
-  }
+  
 }
