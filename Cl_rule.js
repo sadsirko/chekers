@@ -76,10 +76,7 @@ class Rules {
       return false;
     };
 
-    let a;
-    let b;
-    let c;
-    let d;
+    let a, b, c, d;
     const a1 = this.spec.findSpecAr(now).a;
     const b1 = this.spec.findSpecAr(now).b;
     const a2 = this.spec.findSpecAr(pre).a;
@@ -114,44 +111,44 @@ class Rules {
     return false;
   }
   // chek opportunities to beat
-  ruleOpportTo(anctol) {
+  ruleOpportTo(col) {
     let a1,  b1;
-    let col;
-
-    const locBool = (col, colCr, anctol, preA, preB, nowA, nowB, sam) => {
+    let antcol, anClCr;
+    const locBool = (info, preA, preB, nowA, nowB) => {
       const firstCell = this.spec.arr[preA][preB].cheker;
       const secondCell = this.spec.arr[nowA][nowB].cheker;
-      const e = (firstCell ===  colCr || firstCell === col);
-      if (e && secondCell === 'null' && sam === anctol)
+      const e = (firstCell ===  info.antcolCr || firstCell === info.antcol);
+      if (e && secondCell === 'null' && info.sam === info.col)
         return true;
       return false;
     };
 
-    if (anctol === 'w')  col = 'b';
-    if (anctol === 'b')  col = 'w';
+    if (col === 'w') { antcol = 'b'; anClCr = 'bCr'; }
+    if (col === 'b') { antcol = 'w'; anClCr = 'wCr'; }
 
     const checkOport = (a, b) => {
       if (this.spec.arr[a][b].cheker === col) {
         a1 = a;
         b1 = b;
         const sam = this.spec.arr[a1][b1].cheker;
-        if (anctol === 'b') {
+        const info = { col, antcol, sam, anClCr };
+        if (col === 'w') {
           if (a1 - 2 >= 0)   {
-            const aa = locBool('b', 'bCr', 'w', a1 - 1, b1, a1 - 2, b1, sam);
+            const aa = locBool(info, a1 - 1, b1, a1 - 2, b1,);
             if (aa)  return this.spec.arr[a1 - 1][b1];
           }
           if (b1 + 2 <= this.spec.specArrWidth - 1)  {
-            const bb = locBool('b', 'bCr', 'w', a1, b1 + 1, a1, b1 + 2, sam);
+            const bb = locBool(info, a1, b1 + 1, a1, b1 + 2);
             if (bb) return this.spec.arr[a1][b1 + 1];
           }
         }
-        if (anctol === 'w') {
+        if (col === 'b') {
           if (a1 + 2 <= this.spec.specArrHeight - 1)  {
-            const dd = locBool('w', 'wCr', 'b', a1 + 1, b1, a1 + 2, b1, sam);
+            const dd = locBool(info, a1 + 1, b1, a1 + 2, b1);
             if (dd)  return this.spec.arr[a1 + 1][b1];
           }
           if (b1 - 2 >= 0) {
-            const cc = locBool('w', 'wCr', 'b', a1, b1 - 1, a1, b1 - 2, sam);
+            const cc = locBool(info, a1, b1 - 1, a1, b1 - 2);
             if (cc) return this.spec.arr[a1][b1 - 1];
           }
         }

@@ -15,7 +15,7 @@ class Move {
         this.spec.findSpecAr(now).cheker = you;
         this.spec.findSpecAr(pre).cheker = 'null';
 
-        if (this.rule.ruleOpportTo(enemy)) {
+        if (this.rule.ruleOpportTo(you)) {
           if (you === 'b')
             this.spec.changeFlag('-');
           else
@@ -28,7 +28,7 @@ class Move {
     const nowCh = this.spec.findSpecAr(now).cheker;
     const preCh = this.spec.findSpecAr(pre).cheker;
     const d = this.rule.ruleToKill(now, pre);
-    const e = this.rule.ruleOpportTo(enemy);
+    const e = this.rule.ruleOpportTo(you);
     const f = this.rule.ruleOpportToCr(you);
 
     if (preCh === you && nowCh === 'null' && c && !e && !f) {
@@ -67,7 +67,7 @@ class Move {
     const c = this.rule.ruleForStep(now, pre, 'Cr');
     const d = this.rule.ruleToKillCr(now, pre, you);
     const e = this.rule.ruleOpportToCr(you);
-    const f = this.rule.ruleOpportTo(enemy);
+    const f = this.rule.ruleOpportTo(you);
 
     if (a === 'null' && b === youCr && !e && !f) {
       if (c) {
