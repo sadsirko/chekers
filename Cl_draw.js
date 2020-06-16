@@ -8,6 +8,8 @@ class Draw {
     this.turncanvas = turncanvas;
     this.ctx = canvas.getContext('2d');
     this.ctxturn = turncanvas.getContext('2d');
+    this.turnCellW = 80;
+    this.diffRad = 5;
   }
 
   drawMust(x, y) {
@@ -58,13 +60,13 @@ class Draw {
     this.ctx.fill();
     this.ctx.closePath();
     this.ctx.beginPath();
-    this.ctx.arc(xR, yR, this.CHEKER_R - 5, 0, Math.PI * 2, false);
+    this.ctx.arc(xR, yR, this.CHEKER_R - this.diffRad, 0, Math.PI * 2, false);
     this.ctx.fillStyle = '#0774a6';
     this.ctx.fill();
     this.ctx.closePath();
   }
 
-  drawDesk() { 
+  drawDesk() {
     this.ctx.clearRect(0, 0, this.canv.width, this.canv.height);
     for (let xCell = 0; xCell < this.canv.width; xCell += 2 * this.cell.w) {
       for (let yCell = 0; yCell < this.canv.height; yCell += 2 * this.cell.h) {
@@ -77,9 +79,9 @@ class Draw {
   druwTurn(flag) {
     const pos = this.turncanvas.width / 2;
 
-    this.ctxturn.clearRect(0, 0, 80, 80);
+    this.ctxturn.clearRect(0, 0, this.turnCellW, this.turnCellW);
     this.ctxturn.beginPath();
-    this.ctxturn.arc(pos, pos, pos - 5, 0, Math.PI * 2, false);
+    this.ctxturn.arc(pos, pos, pos - this.diffRad, 0, Math.PI * 2, false);
     if (!flag) this.ctxturn.fillStyle = 'black';
     else  this.ctxturn.fillStyle = 'white';
     this.ctxturn.fill();

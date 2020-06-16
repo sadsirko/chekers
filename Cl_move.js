@@ -21,25 +21,25 @@ class Move {
           else
             this.spec.changeFlag('+');
         }
-
       }
     };
 
     const c = this.rule.ruleForStep(now, pre, you);
-    const a = this.spec.findSpecAr(now).cheker;
-    const b = this.spec.findSpecAr(pre).cheker;
+    const nowCh = this.spec.findSpecAr(now).cheker;
+    const preCh = this.spec.findSpecAr(pre).cheker;
     const d = this.rule.ruleToKill(now, pre);
     const e = this.rule.ruleOpportTo(enemy);
     const f = this.rule.ruleOpportToCr(you);
-    if (b === you && a === 'null' && c && !e && !f) {
+
+    if (preCh === you && nowCh === 'null' && c && !e && !f) {
       if (c) {
         this.spec.findSpecAr(now).cheker = you;
         this.spec.findSpecAr(pre).cheker = 'null';
       }
       if (d) {
-        this.rule.ruleToKill(now, pre).cheker = 'null';
-        this.spec.findSpecAr(now).cheker = you;
-        this.spec.findSpecAr(pre).cheker = 'null';
+        d.cheker = 'null';
+        nowCh = you;
+        preCh = 'null';
       }
     }
     inside(e, d, now, pre);

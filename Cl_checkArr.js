@@ -23,21 +23,21 @@ class ChekArr {
     this.choosenCellNow = 0;
     this.choosenCellPrev = 19;
     this.flag = 1;
+    this.specArrHeight = 7;
+    this.specArrWidth = 8;
   }
+
   changeFlag(sym) {
     if (sym === '+')
       this.flag++;
     else this.flag--;
   }
 
-
   workWithSpecArr() {
     let numCell = 1;
-    const specArrHeight = 7;
-    const specArrWidth = 8;
-    for (let i = 0; i < specArrHeight; i++) {
+    for (let i = 0; i < this.specArrHeight; i++) {
       this.arr[i] = [];
-      for (let j = 0; j < specArrWidth; j++) {
+      for (let j = 0; j < this.specArrWidth; j++) {
         this.arr[i][j] = {};
       }
     }
@@ -63,14 +63,13 @@ class ChekArr {
       case 'b': return this.drawing.drawcheker(c.x, c.y, 'b');
       case 'wCr': return this.drawing.drawchekerCr(c.x, c.y, 'w');
       case 'bCr': return this.drawing.drawchekerCr(c.x, c.y, 'b');
-
       }
     };
 
-    for (let j = 0; j < 4; j++) {
-      for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < this.LINES; j++) {
+      for (let i = 0; i < this.LINES; i++) {
         const a = 0 + i + j;
-        const b = 4 + i - j;
+        const b = this.LINES + i - j;
         const c = this.arr[a][b];
         const d = this.arr[a][b - 1];
         color(c);
@@ -78,7 +77,7 @@ class ChekArr {
       }
     }
   }
-
+  // find by num the cell in arr of chekers
   findSpecAr(nn) {
     for (let j = 0; j < this.LINES; j++) {
       for (let i = 0; i < this.LINES; i++) {
@@ -99,8 +98,7 @@ class ChekArr {
         this.zone[num] = { };
         if (i % 2 === 0)
           this.zone[num] = { x: side + 2 * side * j, y: i * side  };
-
-        else this.zone[num] = { x:  2 * side * j, y: i * side  };
+        else this.zone[num] = { x: 2 * side * j, y: i * side  };
         num++;
       }
     }
