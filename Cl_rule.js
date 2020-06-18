@@ -7,63 +7,61 @@ class Rules {
     this.LINES = 4;
   }
 
-  ruleForStep(now, pre, color) {
+  fillPos(now, pre) {
     const a1 = this.spec.findSpecAr(now).a;
     const b1 = this.spec.findSpecAr(now).b;
     const a2 = this.spec.findSpecAr(pre).a;
     const b2 = this.spec.findSpecAr(pre).b;
-    const c = (b1 - b2);
-    const d = (a1 - a2);
-    // cheker change the cell ,
-    const up =  (((a2 - a1) === 1) && (b1 === b2));
-    const down = ((d === 1) && (b1 === b2));
-    const left = ((a1 === a2) && (c === 1));
-    const right = ((a1 === a2) && ((b2 - b1) === 1));
+    const pos = { a1, b1, a2, b2 };
+    return pos;
+  }
 
-    const white = (color === 'w' && (up || left));
-    const black = (color === 'b' && (down || right));
-    const crown = (color === 'Cr' && (up || down || right || left));
+  fillDir(a1, b1, a2, b2, length) {
+    const up =  (a2 - a1 === length && (b1 === b2));
+    const down = (a1 - a2 === length && (b1 === b2));
+    const left = (a1 === a2 && b1 - b2 === length);
+    const right = (a1 === a2 && (b2 - b1 === length));
+    const res = { up, down, left, right };
+    return res;
+  }
 
-    if (white || black || crown) return true;
+  ruleForStep(now, pre, clr) {
+    const pos = this.fillPos(now, pre);
+    const dir = this.fillDir(pos.a1, pos.b1, pos.a2, pos.b2, 1);
+    const white = (clr === 'w' && (dir.up || dir.left));
+    const black = (clr === 'b' && (dir.down || dir.right));
+    const cr = (clr === 'Cr' && (dir.up || dir.down || dir.right || dir.left));
+    if (white || black || cr) return true;
     return false;
   }
 
   ruleToKill(now, pre) {
 
-    const a1 = this.spec.findSpecAr(now).a;
-    const b1 = this.spec.findSpecAr(now).b;
-    const a2 = this.spec.findSpecAr(pre).a;
-    const b2 = this.spec.findSpecAr(pre).b;
+    const locHelp = (a, b, clr, clrCr, sa, pos) => {
+      const saLoc = sa[pos.a1 + a][pos.b1 + b];
+      if (saLoc.cheker === clr || saLoc.cheker === clrCr)
+        return saLoc;
+    };
+
+    const pos = this.fillPos(now, pre);
     const sa = this.spec.arr;
+    const dir = this.fillDir(pos.a1, pos.b1, pos.a2, pos.b2, 2);
 
-    const up = ((a2 - a1) === 2) && (b1 === b2);
-    const down = ((a1 - a2) === 2) && (b1 === b2);
-    const left =  (a1 === a2) && (b1 - b2 === 2);
-    const right = (a1 === a2) && ((b2 - b1) === 2);
-
-    if (up) {
-      const sa1 = sa[a1 + 1][b1];
-      if (sa1.cheker === 'b' || sa1.cheker === 'bCr') {
-        return sa1;
-      }
+    if (dir.up) {
+      const cell = locHelp(1, 0, 'b', 'bCr', sa, pos);
+      if (cell) return cell;
     }
-    if (left) {
-      const sa2 = sa[a1][b1 - 1];
-      if (sa2.cheker === 'b' || sa2.cheker === 'bCr') {
-        return sa2;
-      }
+    if (dir.left) {
+      const cell = locHelp(0, -1, 'b', 'bCr', sa, pos);
+      if (cell) return cell;
     }
-    if (down) {
-      const sa3 = sa[a1 - 1][b1];
-      if (sa3.cheker === 'w' || sa3.cheker === 'wCr') {
-        return sa3;
-      }
+    if (dir.down) {
+      const cell = locHelp(-1, 0, 'w', 'wCr', sa, pos);
+      if (cell) return cell;
     }
-    if (right) {
-      const sa4 = sa[a1][b1 + 1];
-      if (sa4.cheker === 'w' || sa4.cheker === 'wCr') {
-        return sa4;
-      }
+    if (dir.right) {
+      const cell = locHelp(0, 1, 'w', 'wCr', sa, pos);
+      if (cell) return cell;
     }
     return false;
   }
@@ -76,38 +74,28 @@ class Rules {
       return false;
     };
 
-    let a, b, c, d;
-    const a1 = this.spec.findSpecAr(now).a;
-    const b1 = this.spec.findSpecAr(now).b;
-    const a2 = this.spec.findSpecAr(pre).a;
-    const b2 = this.spec.findSpecAr(pre).b;
-    const sa = this.spec.arr;
-    const sam = this.spec.arr[a2][b2].cheker;
+    const lockHelp = (firstB, secB, a, b, sa, sam) => {
+      if (firstB === 2) {
+        const tmp = sa[a][b];
+        if (!secB && lockBull(tmp.cheker, sam, color))
+          return tmp;
+      }
+    };
 
-    if ((a2 - a1) === 2) {
-      a = sa[a2 - 1][b1];
-      if (((b1 - b2) === 0) && lockBull(a.cheker, sam, color)) {
-        return a;
-      }
-    }
-    if ((b1 - b2) === 2) {
-      b = sa[a1][b2 + 1];
-      if (((a1 - a2) === 0) && lockBull(b.cheker, sam, color)) {
-        return  b;
-      }
-    }
-    if ((a1 - a2) === 2) {
-      c = sa[a2 + 1][b1];
-      if (((b1 - b2) === 0) && lockBull(c.cheker, sam, color)) {
-        return c;
-      }
-    }
-    if ((b2 - b1) === 2) {
-      d = sa[a1][b2 - 1];
-      if (((a1 - a2) === 0) && lockBull(d.cheker, sam, color)) {
-        return d;
-      }
-    }
+    let tmp;
+    const pos = this.fillPos(now, pre);
+    const sa = this.spec.arr;
+    const sam = this.spec.arr[pos.a2][pos.b2].cheker;
+    const up = pos.a1 - pos.a2;
+    const bott = pos.b1 - pos.b2;
+    tmp = lockHelp(pos.a2 - pos.a1, bott, pos.a2 - 1, pos.b1, sa, sam);
+    if (tmp) return tmp;
+    tmp = lockHelp(pos.b1 - pos.b2, up, pos.a1, pos.b2 + 1, sa, sam);
+    if (tmp) return tmp;
+    tmp = lockHelp(pos.a1 - pos.a2, bott, pos.a2 + 1, pos.b1, sa, sam);
+    if (tmp) return tmp;
+    tmp = lockHelp(pos.b2 - pos.b1, up, pos.a1, pos.b2 - 1, sa, sam);
+    if (tmp) return tmp;
     return false;
   }
   // chek opportunities to beat
@@ -118,9 +106,7 @@ class Rules {
       const firstCell = this.spec.arr[preA][preB].cheker;
       const secondCell = this.spec.arr[nowA][nowB].cheker;
       const e = (firstCell ===  info.antcolCr || firstCell === info.antcol);
-      if (e && secondCell === 'null' && info.sam === info.col)
-        return true;
-      return false;
+      return (e && secondCell === 'null' && info.sam === info.col);
     };
 
     if (col === 'w') { antcol = 'b'; anClCr = 'bCr'; }

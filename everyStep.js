@@ -21,23 +21,19 @@ function everyStep(drawing, rule, spec, mover, choosCellNow, choosCellPrev) {
         mover.moveCr(choosCellNow, choosCellPrev, col, antCl, colCr, spec.flag);
         mover.move(choosCellNow, choosCellPrev, col, antCl, spec.flag);
         if (spec.findSpecAr(choosCellPrev).cheker === 'null') {
-          spec.changeFlag(char);       socket.send(JSON.stringify(spec.arr));
+          spec.changeFlag(char);  
+          socket.send(JSON.stringify(spec.arr));
         }
       }
       spec.chekOnCrown();
     }
   };
 
-  if (!spec.flag) {
-    highlight('b');
-  } else {
-    highlight('w');
-  }
+   (!spec.flag)? highlight('b'): highlight('w');
+   
   makeMove(spec.flag, 'w', 'wCr', 'b', '-');
   makeMove(!spec.flag, 'b', 'bCr', 'w', '+');
   spec.drawChekers();
-
-
-    spec.chekOnCrown();
+  spec.chekOnCrown();
   
 }

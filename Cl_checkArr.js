@@ -1,9 +1,9 @@
 'use strict';
 
 class Cell {
-  constructor(num, cheker, x, y, a, b) {
+  constructor(num, x, y, a, b) {
     this.num = num;
-    this.cheker = cheker;
+    this.cheker = 'null';
     this.x = x;
     this.y = y;
     this.a = a;
@@ -28,8 +28,7 @@ class ChekArr {
   }
 
   changeFlag(sym) {
-    if (sym === '+')
-      this.flag++;
+    if (sym === '+') this.flag++;
     else this.flag--;
   }
 
@@ -43,14 +42,18 @@ class ChekArr {
     }
 
     const side = this.cell.h;
-    for (let j = 0; j < 4; j++) {
-      for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < this.LINES; j++) {
+      for (let i = 0; i < this.LINES; i++) {
         const a = 0 + i + j;
         const b = 4 + i - j;
-        this.arr[a][b] = new Cell(numCell, 'null', side + 2 * side * i,
-          2 * side * j, a, b);
-        this.arr[a][b - 1] = new Cell(numCell + 4, 'null', 2 * side * i,
-          side +  2 * side * j, a, b - 1);
+        let dblSideI = 2 * side * i + side;
+        let dblSideJ = 2 * side * j;
+        const elem = new Cell(numCell, dblSideI, dblSideJ, a, b);
+        dblSideI -= side;
+        dblSideJ += side;
+        const elem2 = new Cell(numCell + 4, dblSideI, dblSideJ, a, b - 1);
+        this.arr[a][b] = elem;
+        this.arr[a][b - 1] = elem2;
         numCell++;
       } numCell += 4;
     }
@@ -92,13 +95,14 @@ class ChekArr {
 
   findZones() {
     let num = 1;
+    let point = {};
     const side = this.cell.h;
-    for (let i  = 0; i < 8; i++) {
-      for (let j  = 0; j < 4; j++) {
+    for (let i  = 0; i < this.specArrWidth; i++) {
+      for (let j  = 0; j < this.LINES; j++) {
         this.zone[num] = { };
-        if (i % 2 === 0)
-          this.zone[num] = { x: side + 2 * side * j, y: i * side  };
-        else this.zone[num] = { x: 2 * side * j, y: i * side  };
+        point = { x: 2 * side * j, y: i * side  };
+        if (i % 2 === 0)  point.x += side;
+        this.zone[num] = point;
         num++;
       }
     }
@@ -139,11 +143,13 @@ class ChekArr {
   }
 
   chekOnCrown() {
-    for (let j = 1; j <= this.LINES; j++) {
-      if (this.findSpecAr(j + this.USABLE_CELL - this.LINES).cheker === 'b')
-        this.findSpecAr(j + this.USABLE_CELL - this.LINES).cheker = 'bCr';
-      if (this.findSpecAr(j).cheker === 'w')
-        this.findSpecAr(j).cheker = 'wCr';
+    let a, pos, b;
+    for (let j = 0; j < this.LINES; j++) {
+      pos = this.USABLE_CELL - j;
+      a = this.findSpecAr(pos).cheker;
+      b = this.findSpecAr(j + 1).cheker;
+      this.findSpecAr(pos).cheker = (a === 'b') ? 'bCr' : a;
+      this.findSpecAr(j + 1).cheker = (b === 'w') ? 'wCr' : b;
     }
   }
 }
